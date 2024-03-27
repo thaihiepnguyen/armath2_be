@@ -9,7 +9,7 @@
     "prestart": "npm run build",
     "start": "node dist/index.js",
     "predev": "npm run build",
-    "dev": "concurrently  \"npx tsc -w\"  \"nodemon dist/index.js\""
+    "dev": "concurrently  \"npx tsc -w\"  \"nodemon -q -V dist/index.js\""
   },
   "repository": {
     "type": "git",
@@ -30,10 +30,16 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "knex": "^3.1.0",
-    "pg": "^8.11.3",
-    "typescript": "^5.4.3"
+    "pg": "^8.11.3"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "eslint": "^8.57.0",
+    "eslint-config-standard-with-typescript": "^43.0.1",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-promise": "^6.1.1",
+    "nodemon": "^3.1.0",
+    "typescript": "^5.4.3"
   }
 }

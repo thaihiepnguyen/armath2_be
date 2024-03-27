@@ -1,31 +1,14 @@
-import express, {Express, Request, Response} from 'express';
-import 'dotenv/config'
-import db from './util/db.js';
-import { log } from 'console';
- // Add type declaration for the imported module
-const app : Express = express();
-//Test the connection
-app.get('/', async (req: Request, res: Response) => {
-    // try{
-    //     const result=await db.raw('SELECT *  FROM users');
-    //     log(result);
-    // }
-    // catch(err){
-    //     console.log(err);
-    // }
-    res.send("Hello World!!!");
+import express, {Express, Request, Response} from "express";
+import "dotenv/config";
+import accountRoute from "./routes/account.route.js";
+
+const app: Express = express();
+
+app.use("/account", accountRoute);
+app.get("/health", (req: Request, res: Response) => {
+    res.send("OK");
 })
 
-// Start the server
-app.listen(process.env.PORT, () => {
-    //try to connect to the database
-    try{
-        db.raw('SELECT 1+1 as result').then(() => {
-            console.log('Database connected');
-        })
-    }
-    catch(err){
-        console.log(err);
-    }
-    console.log(`Server is running on port http://127.0.0.1:${process.env.PORT}`);
+app.listen(process.env.PORT, (): void => {
+    console.log(`Server is running on port http://localhost:${process.env.PORT}`);
 })
