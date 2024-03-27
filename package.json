@@ -1,0 +1,39 @@
+{
+  "name": "armath2_be",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "npx tsc",
+    "prestart": "npm run build",
+    "start": "node dist/index.js",
+    "predev": "npm run build",
+    "dev": "concurrently  \"npx tsc -w\"  \"nodemon dist/index.js\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thaihiepnguyen/armath2_be.git"
+  },
+  "author": "Duong",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thaihiepnguyen/armath2_be/issues"
+  },
+  "homepage": "https://github.com/thaihiepnguyen/armath2_be#readme",
+  "dependencies": {
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.21",
+    "@types/knex": "^0.16.1",
+    "@types/node": "^20.11.30",
+    "concurrently": "^8.2.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "knex": "^3.1.0",
+    "pg": "^8.11.3",
+    "typescript": "^5.4.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
