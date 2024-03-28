@@ -1,6 +1,8 @@
 import {Request, Response} from 'express';
 import accountService from "../services/account.service.js";
 import appConst from "../app.const.js";
+import jwt from "jsonwebtoken";
+import {TMetadata, TPayload} from "../app.typing.js";
 
 
 async function loginByEmail(req: Request, res: Response): Promise<any> {
@@ -42,25 +44,35 @@ async function registerByEmail(req: Request, res: Response): Promise<any> {
   }
 
   const {
-    isSuccessful,
     message,
-    data,
     errorCode
   } = await accountService.registerByEmail(email, password);
 
-  if (isSuccessful) {
-    return res.status(200).json({
-      message,
-      data
-    });
-  } else {
-    return res.status(errorCode).json({
-      message
+  return res.status(errorCode).json({
+    message
+  });
+}
+
+async function verifyEmail(req: Request, res: Response): Promise<any> {
+const { token } = req.query;
+  if (!token) {
+    return res.status(400).json({
+      message: "token are required"
     });
   }
+
+  const {
+    message,
+    errorCode
+  } = await accountService.verifyEmail(token as string);
+
+  return res.status(errorCode).json({
+    message
+  });
 }
 
 export default {
   loginByEmail,
-  registerByEmail
+  registerByEmail,
+  verifyEmail
 }

@@ -1,10 +1,12 @@
 import db from "../util/db.js";
 import {generateUsername} from "unique-username-generator";
-import {TBaseDto, TPayload} from "../app.typing.js";
+import {TBaseDto, TMetadata, TPayload} from "../app.typing.js";
 import * as bcrypt from "bcrypt";
 import {UserEntity} from "../entities/user.entity.js";
 import jwt from "jsonwebtoken";
 import appConst from "../app.const.js";
+import {TemplateEmailEntity} from "../entities/templateEmail.entity.js";
+import nodemailer from "nodemailer";
 
 async function getUserByEmail(email: string): Promise<UserEntity | undefined> {
   return db<UserEntity>("users").where("email", email).first();
@@ -17,6 +19,14 @@ async function loginByEmail(email: string, password: string): Promise<TBaseDto<a
       isSuccessful: false,
       message: "email not found",
       errorCode: 404
+    }
+  }
+
+  if (!user.is_valid) {
+    return {
+      isSuccessful: false,
+      message: "email not verified",
+      errorCode: 403
     }
   }
 
@@ -43,8 +53,6 @@ async function loginByEmail(email: string, password: string): Promise<TBaseDto<a
     isSuccessful: true,
     message: "login success",
     data: {
-      uid: user.user_id,
-      uname: user.name,
       act: token
     },
     errorCode: 200
@@ -71,10 +79,51 @@ async function registerByEmail(email: string, password: string): Promise<TBaseDt
 
     const newId = newUser[0].user_id;
 
+    const emailTemplate = await db<TemplateEmailEntity>("email_templates").where("name", "email_verification").first();
+    if (!emailTemplate) {
+      return {
+        isSuccessful: false,
+        message: "Internal Error",
+        errorCode: 500
+      }
+    }
+    const user = await db<UserEntity>("users").where("user_id", newId).first();
+    if (!user) {
+      return {
+        isSuccessful: false,
+        message: "Internal Error",
+        errorCode: 500
+      }
+    }
+    const payload: TPayload = {
+      uid: user.user_id,
+      email: user.email,
+      uname: user.name
+    }
+    const token = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
+      expiresIn: appConst.EXPIRES_ACCESS_TOKEN_IN
+    });
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.USER_NODE_MAILER,
+        pass: process.env.PASS_NODE_MAILER,
+      },
+    });
+
+    await transporter.sendMail({
+      from: "MathAr Unity Application <",
+      to: `${user.email}`,
+      subject: "Verification Email",
+      html: emailTemplate.content
+        .replace("$user_name$", user.name)
+        .replace("$url$", `${process.env.SERVER_URL_LOCAL}:${process.env.PORT}`)
+        .replace("$token$", token),
+    });
+
     return {
-      message: "register success",
+      message: "Email has been sent to your email address. Please verify your email address.",
       isSuccessful: true,
-      data: newId,
       errorCode: 200
     }
   } catch (error) {
@@ -86,7 +135,38 @@ async function registerByEmail(email: string, password: string): Promise<TBaseDt
   }
 }
 
+async function verifyEmail(token: string): Promise<TBaseDto<undefined>> {
+  const decoded = jwt.verify(token as string, process.env.JWT_SECRET || 'secret') as TPayload;
+  const user = await db<UserEntity>("users").where("user_id", decoded.uid).first();
+  if (!user) {
+    return {
+      isSuccessful: false,
+      message: "user not found",
+      errorCode: 404
+    }
+  }
+
+  if (user.is_valid) {
+    return {
+      isSuccessful: true,
+      message: "email already verified",
+      errorCode: 200
+    }
+  }
+
+  await db<UserEntity>("users").where("user_id", decoded.uid).update({
+    is_valid: true
+  });
+
+  return {
+    isSuccessful: true,
+    message: "email verified",
+    errorCode: 200
+  }
+}
+
 export default {
   loginByEmail,
-  registerByEmail
+  registerByEmail,
+  verifyEmail
 }

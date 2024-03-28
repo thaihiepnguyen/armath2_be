@@ -1,4 +1,4 @@
-import express, {Express, NextFunction, Request, Response} from "express";
+import express, {Express, Request, Response} from "express";
 import "dotenv/config";
 import accountRoute from "./routes/account.route.js";
 import userRoute from "./routes/user.route.js";
