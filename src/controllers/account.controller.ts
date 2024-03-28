@@ -23,16 +23,6 @@ async function loginByEmail(req: Request, res: Response): Promise<any> {
       httpOnly: false,
       maxAge: appConst.EXPIRES_COOKIE.IN7DAYS,
     })
-
-    res.cookie("uid", data.uid, {
-      httpOnly: false,
-      maxAge: appConst.EXPIRES_COOKIE.IN7DAYS,
-    })
-
-    res.cookie("uname", data.uname, {
-      httpOnly: false,
-      maxAge: appConst.EXPIRES_COOKIE.IN7DAYS,
-    })
     return res.status(200).json({
       message
     });

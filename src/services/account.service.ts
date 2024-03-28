@@ -53,7 +53,7 @@ async function loginByEmail(email: string, password: string): Promise<TBaseDto<a
 
 async function registerByEmail(email: string, password: string): Promise<TBaseDto<number>> {
   const user: UserEntity | undefined = await getUserByEmail(email);
-  if (!user) {
+  if (user) {
     return {
       isSuccessful: false,
       message: "email already exist",
