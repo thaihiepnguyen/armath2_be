@@ -22,3 +22,9 @@ export type JWTError = {
   message: string;
   name: string;
 }
+
+export type TCookieData = {
+  rft: string;
+  uid: number;
+  act: string;
+}

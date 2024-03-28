@@ -1,9 +1,6 @@
 import {Request, Response} from 'express';
 import accountService from "../services/account.service.js";
-import appConst from "../app.const.js";
-import jwt from "jsonwebtoken";
-import {TMetadata, TPayload} from "../app.typing.js";
-
+import cookieUtil from "../util/cookie.util.js";
 
 async function loginByEmail(req: Request, res: Response): Promise<any> {
   const { email, password } = req.body;
@@ -21,10 +18,7 @@ async function loginByEmail(req: Request, res: Response): Promise<any> {
   } = await accountService.loginByEmail(email, password);
 
   if (isSuccessful) {
-    res.cookie("act", data.act, {
-      httpOnly: false,
-      maxAge: appConst.EXPIRES_COOKIE.IN7DAYS,
-    })
+    cookieUtil.setCookie(res, data);
     return res.status(200).json({
       message
     });
@@ -45,7 +39,7 @@ async function registerByEmail(req: Request, res: Response): Promise<any> {
 
   const {
     message,
-    errorCode
+    errorCode,
   } = await accountService.registerByEmail(email, password);
 
   return res.status(errorCode).json({
@@ -71,8 +65,59 @@ const { token } = req.query;
   });
 }
 
+function refreshToken(req: Request, res: Response): any {
+  const { rft } = req.cookies;
+  if (!rft) {
+    return res.status(400).json({
+      message: "refresh token is required"
+    });
+  }
+
+  const {
+    isSuccessful,
+    message,
+    errorCode,
+    data,
+  } = accountService.refreshToken(rft);
+
+  if (isSuccessful && errorCode === 200) {
+    cookieUtil.setCookie(res, data!!);
+  }
+  return res.status(errorCode).json({
+    message
+  });
+}
+
+async function resendVerificationEmail(req: Request, res: Response): Promise<any> {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({
+      message: "email is required"
+    });
+  }
+
+  const {
+    message,
+    errorCode
+  } = await accountService.resendVerificationEmail(email);
+
+  return res.status(errorCode).json({
+    message
+  });
+}
+
+function logout(req: Request, res: Response): any {
+  cookieUtil.clearCookie(res);
+  return res.status(200).json({
+    message: "logout success"
+  });
+}
+
 export default {
   loginByEmail,
   registerByEmail,
-  verifyEmail
+  verifyEmail,
+  refreshToken,
+  resendVerificationEmail,
+  logout
 }

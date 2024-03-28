@@ -1,19 +1,16 @@
 import db from "../util/db.js";
 import {generateUsername} from "unique-username-generator";
-import {TBaseDto, TMetadata, TPayload} from "../app.typing.js";
+import {JWTError, TBaseDto, TCookieData, TMetadata, TPayload} from "../app.typing.js";
 import * as bcrypt from "bcrypt";
 import {UserEntity} from "../entities/user.entity.js";
 import jwt from "jsonwebtoken";
 import appConst from "../app.const.js";
 import {TemplateEmailEntity} from "../entities/templateEmail.entity.js";
-import nodemailer from "nodemailer";
-
-async function getUserByEmail(email: string): Promise<UserEntity | undefined> {
-  return db<UserEntity>("users").where("email", email).first();
-}
+import mailService from "./mail.service.js";
+import userService from "./user.service.js";
 
 async function loginByEmail(email: string, password: string): Promise<TBaseDto<any>> {
-  const user: UserEntity | undefined = await getUserByEmail(email);
+  const user: UserEntity | undefined = await userService.getUserByEmail(email);
   if (!user) {
     return {
       isSuccessful: false,
@@ -45,22 +42,28 @@ async function loginByEmail(email: string, password: string): Promise<TBaseDto<a
     uname: user.name
   }
 
-  const token = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
+  const accessToken = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
     expiresIn: appConst.EXPIRES_ACCESS_TOKEN_IN
+  });
+
+  const refreshToken = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
+    expiresIn: appConst.EXPIRES_REFRESH_TOKEN_IN
   });
 
   return {
     isSuccessful: true,
     message: "login success",
     data: {
-      act: token
+      act: accessToken,
+      rft: refreshToken,
+      uid: user.user_id
     },
     errorCode: 200
   }
 }
 
-async function registerByEmail(email: string, password: string): Promise<TBaseDto<number>> {
-  const user: UserEntity | undefined = await getUserByEmail(email);
+async function registerByEmail(email: string, password: string): Promise<TBaseDto<undefined>> {
+  const user: UserEntity | undefined = await userService.getUserByEmail(email);
   if (user) {
     return {
       isSuccessful: false,
@@ -79,7 +82,7 @@ async function registerByEmail(email: string, password: string): Promise<TBaseDt
 
     const newId = newUser[0].user_id;
 
-    const emailTemplate = await db<TemplateEmailEntity>("email_templates").where("name", "email_verification").first();
+    const emailTemplate = await db<TemplateEmailEntity>("email_templates").where("id", 50).first();
     if (!emailTemplate) {
       return {
         isSuccessful: false,
@@ -87,7 +90,7 @@ async function registerByEmail(email: string, password: string): Promise<TBaseDt
         errorCode: 500
       }
     }
-    const user = await db<UserEntity>("users").where("user_id", newId).first();
+    const user = await userService.getUserById(newId)
     if (!user) {
       return {
         isSuccessful: false,
@@ -100,32 +103,7 @@ async function registerByEmail(email: string, password: string): Promise<TBaseDt
       email: user.email,
       uname: user.name
     }
-    const token = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
-      expiresIn: appConst.EXPIRES_ACCESS_TOKEN_IN
-    });
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.USER_NODE_MAILER,
-        pass: process.env.PASS_NODE_MAILER,
-      },
-    });
-
-    await transporter.sendMail({
-      from: "MathAr Unity Application <",
-      to: `${user.email}`,
-      subject: "Verification Email",
-      html: emailTemplate.content
-        .replace("$user_name$", user.name)
-        .replace("$url$", `${process.env.SERVER_URL_LOCAL}:${process.env.PORT}`)
-        .replace("$token$", token),
-    });
-
-    return {
-      message: "Email has been sent to your email address. Please verify your email address.",
-      isSuccessful: true,
-      errorCode: 200
-    }
+    return mailService.sendEmailVerification(payload, appConst.TEMPLATE_EMAIL.VERIFICATION)
   } catch (error) {
     return {
       message: "register failed",
@@ -136,8 +114,18 @@ async function registerByEmail(email: string, password: string): Promise<TBaseDt
 }
 
 async function verifyEmail(token: string): Promise<TBaseDto<undefined>> {
-  const decoded = jwt.verify(token as string, process.env.JWT_SECRET || 'secret') as TPayload;
-  const user = await db<UserEntity>("users").where("user_id", decoded.uid).first();
+  let decoded: TPayload;
+  try {
+    decoded = jwt.verify(token as string, process.env.JWT_SECRET || 'secret') as TPayload;
+  } catch (error) {
+    return {
+      isSuccessful: false,
+      message: "invalid token",
+      errorCode: 400
+    }
+  }
+
+  const user = await userService.getUserById(decoded.uid);
   if (!user) {
     return {
       isSuccessful: false,
@@ -165,8 +153,72 @@ async function verifyEmail(token: string): Promise<TBaseDto<undefined>> {
   }
 }
 
+function refreshToken(rft: string): TBaseDto<TCookieData> {
+  try {
+    const decoded = jwt.verify(rft, process.env.JWT_SECRET || 'secret') as TPayload;
+    const payload: TPayload = {
+      uid: decoded.uid,
+      email: decoded.email,
+      uname: decoded.uname
+    }
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
+      expiresIn: appConst.EXPIRES_ACCESS_TOKEN_IN
+    });
+
+    const refreshToken = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
+      expiresIn: appConst.EXPIRES_REFRESH_TOKEN_IN
+    });
+
+    return {
+      isSuccessful: true,
+      message: "refresh token success",
+      data: {
+        act: accessToken,
+        rft: refreshToken,
+        uid: decoded.uid
+      },
+      errorCode: 200
+    }
+  } catch (error: JWTError | any) {
+    return {
+      isSuccessful: false,
+      message: error.message,
+      errorCode: 401
+    }
+  }
+}
+
+async function resendVerificationEmail(email: string): Promise<TBaseDto<undefined>> {
+  const user = await userService.getUserByEmail(email);
+  if (!user) {
+    return {
+      isSuccessful: false,
+      message: "email not found",
+      errorCode: 404
+    }
+  }
+
+  const payload: TPayload = {
+    uid: user.user_id,
+    email: user.email,
+    uname: user.name
+  }
+
+  if (user.is_valid) {
+    return {
+      isSuccessful: false,
+      message: "email already verified",
+      errorCode: 400
+    }
+  }
+
+  return mailService.sendEmailVerification(payload, appConst.TEMPLATE_EMAIL.VERIFICATION);
+}
+
 export default {
   loginByEmail,
   registerByEmail,
-  verifyEmail
+  verifyEmail,
+  refreshToken,
+  resendVerificationEmail
 }

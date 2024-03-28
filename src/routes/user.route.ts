@@ -4,6 +4,6 @@ import userController from "../controllers/user.controller.js";
 
 const router: Router = Router();
 
-router.get("/byId/:id", authMiddleware.authenticate, userController.findUserById);
+router.get("/getById/:id", authMiddleware.authenticate, userController.getUserById);
 
 export default router;
