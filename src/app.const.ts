@@ -1,0 +1,7 @@
+export default {
+  EXPIRES_ACCESS_TOKEN_IN: "15m",
+  EXPIRES_REFRESH_TOKEN_IN: "7d",
+  EXPIRES_COOKIE: {
+    IN7DAYS: 7 * 24 * 60 * 60 * 1000,
+  }
+}

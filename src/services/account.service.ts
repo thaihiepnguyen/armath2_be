@@ -1,14 +1,18 @@
 import db from "../util/db.js";
-import { generateUsername } from "unique-username-generator";
-import {TBaseDto} from "../app.typing.js";
+import {generateUsername} from "unique-username-generator";
+import {TBaseDto, TPayload} from "../app.typing.js";
 import * as bcrypt from "bcrypt";
+import {UserEntity} from "../entities/user.entity.js";
+import jwt from "jsonwebtoken";
+import appConst from "../app.const.js";
 
-async function isEmailExist(email: string): Promise<boolean> {
-  return !! await db("users").where("email", email).first();
+async function getUserByEmail(email: string): Promise<UserEntity | undefined> {
+  return db<UserEntity>("users").where("email", email).first();
 }
 
 async function loginByEmail(email: string, password: string): Promise<TBaseDto<any>> {
-  if (!await isEmailExist(email)) {
+  const user: UserEntity | undefined = await getUserByEmail(email);
+  if (!user) {
     return {
       isSuccessful: false,
       message: "email not found",
@@ -16,9 +20,7 @@ async function loginByEmail(email: string, password: string): Promise<TBaseDto<a
     }
   }
 
-  const user = await db("users").where("email", email).first();
-
-  const isPasswordMatch = await bcrypt.compare(password, user.password);
+  const isPasswordMatch: boolean = await bcrypt.compare(password, user.password!!);
   if (!isPasswordMatch) {
     return {
       isSuccessful: false,
@@ -27,17 +29,31 @@ async function loginByEmail(email: string, password: string): Promise<TBaseDto<a
     }
   }
 
-  delete user.password;
+  const payload: TPayload = {
+    uid: user.user_id,
+    email: user.email,
+    uname: user.name
+  }
+
+  const token = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
+    expiresIn: appConst.EXPIRES_ACCESS_TOKEN_IN
+  });
+
   return {
     isSuccessful: true,
     message: "login success",
-    data: user,
+    data: {
+      uid: user.user_id,
+      uname: user.name,
+      act: token
+    },
     errorCode: 200
   }
 }
 
 async function registerByEmail(email: string, password: string): Promise<TBaseDto<number>> {
-  if (await isEmailExist(email)) {
+  const user: UserEntity | undefined = await getUserByEmail(email);
+  if (!user) {
     return {
       isSuccessful: false,
       message: "email already exist",
@@ -47,7 +63,7 @@ async function registerByEmail(email: string, password: string): Promise<TBaseDt
 
   password = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUNDS as string) || 10);
   try {
-    const newUser = await db("users").insert({
+    const newUser = await db<UserEntity>("users").insert({
       email,
       password,
       name: generateUsername("", 3)

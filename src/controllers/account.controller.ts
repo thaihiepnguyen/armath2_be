@@ -1,5 +1,6 @@
 import {Request, Response} from 'express';
 import accountService from "../services/account.service.js";
+import appConst from "../app.const.js";
 
 
 async function loginByEmail(req: Request, res: Response): Promise<any> {
@@ -18,9 +19,22 @@ async function loginByEmail(req: Request, res: Response): Promise<any> {
   } = await accountService.loginByEmail(email, password);
 
   if (isSuccessful) {
+    res.cookie("act", data.act, {
+      httpOnly: false,
+      maxAge: appConst.EXPIRES_COOKIE.IN7DAYS,
+    })
+
+    res.cookie("uid", data.uid, {
+      httpOnly: false,
+      maxAge: appConst.EXPIRES_COOKIE.IN7DAYS,
+    })
+
+    res.cookie("uname", data.uname, {
+      httpOnly: false,
+      maxAge: appConst.EXPIRES_COOKIE.IN7DAYS,
+    })
     return res.status(200).json({
-      message,
-      data
+      message
     });
   } else {
     return res.status(errorCode).json({
