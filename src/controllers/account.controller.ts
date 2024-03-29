@@ -1,6 +1,6 @@
 import {Request, Response} from 'express';
 import accountService from "../services/account.service.js";
-
+import cookieUtil from "../util/cookie.util.js";
 
 async function loginByEmail(req: Request, res: Response): Promise<any> {
   const { email, password } = req.body;
@@ -18,9 +18,9 @@ async function loginByEmail(req: Request, res: Response): Promise<any> {
   } = await accountService.loginByEmail(email, password);
 
   if (isSuccessful) {
+    cookieUtil.setCookie(res, data);
     return res.status(200).json({
-      message,
-      data
+      message
     });
   } else {
     return res.status(errorCode).json({
@@ -38,25 +38,86 @@ async function registerByEmail(req: Request, res: Response): Promise<any> {
   }
 
   const {
-    isSuccessful,
     message,
-    data,
-    errorCode
+    errorCode,
   } = await accountService.registerByEmail(email, password);
 
-  if (isSuccessful) {
-    return res.status(200).json({
-      message,
-      data
-    });
-  } else {
-    return res.status(errorCode).json({
-      message
+  return res.status(errorCode).json({
+    message
+  });
+}
+
+async function verifyEmail(req: Request, res: Response): Promise<any> {
+const { token } = req.query;
+  if (!token) {
+    return res.status(400).json({
+      message: "token are required"
     });
   }
+
+  const {
+    message,
+    errorCode
+  } = await accountService.verifyEmail(token as string);
+
+  return res.status(errorCode).json({
+    message
+  });
+}
+
+function refreshToken(req: Request, res: Response): any {
+  const { rft } = req.cookies;
+  if (!rft) {
+    return res.status(400).json({
+      message: "refresh token is required"
+    });
+  }
+
+  const {
+    isSuccessful,
+    message,
+    errorCode,
+    data,
+  } = accountService.refreshToken(rft);
+
+  if (isSuccessful && errorCode === 200) {
+    cookieUtil.setCookie(res, data!!);
+  }
+  return res.status(errorCode).json({
+    message
+  });
+}
+
+async function resendVerificationEmail(req: Request, res: Response): Promise<any> {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({
+      message: "email is required"
+    });
+  }
+
+  const {
+    message,
+    errorCode
+  } = await accountService.resendVerificationEmail(email);
+
+  return res.status(errorCode).json({
+    message
+  });
+}
+
+function logout(req: Request, res: Response): any {
+  cookieUtil.clearCookie(res);
+  return res.status(200).json({
+    message: "logout success"
+  });
 }
 
 export default {
   loginByEmail,
-  registerByEmail
+  registerByEmail,
+  verifyEmail,
+  refreshToken,
+  resendVerificationEmail,
+  logout
 }
