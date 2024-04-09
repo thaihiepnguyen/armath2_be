@@ -4,6 +4,6 @@ import lessonController from "../controllers/lesson.controller.js";
 const router: Router = Router();
 
 router.get("/chapters",  lessonController.getAllChapter);
-router.get("/getLessonsByChapterId/:chapter",  lessonController.getLessonByChapter);
+router.post("/getLessonsByChapterId",  lessonController.getLessonByChapter);
 
 export default router;

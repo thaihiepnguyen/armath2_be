@@ -2,7 +2,7 @@ import {Request, Response} from 'express';
 import lessonService from "../services/lesson.service.js";
 
 async function getLessonByChapter(req: Request, res: Response): Promise<any> {
-  const { chapter } = req.params;
+  const { chapter } = req.body;
 
   const lessons = await lessonService.getLessonByChapter(chapter);
 

@@ -3,7 +3,7 @@ import db from "../util/db.js";
 
 
 async function getLessonByChapter(chapter: string): Promise<LessonEntity[] | undefined> {
-  return db<LessonEntity>("lessons").where("chapter", chapter);
+  return db<LessonEntity>("lessons").where("chapter", chapter).orderBy("lesson_id");
 }
 
 async function getAllChapter(): Promise<String[] | undefined> {
