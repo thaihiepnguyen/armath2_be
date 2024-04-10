@@ -5,5 +5,6 @@ const router: Router = Router();
 
 router.get("/chapters",  lessonController.getAllChapter);
 router.post("/getLessonsByChapterId",  lessonController.getLessonByChapter);
-
+router.post("/getVideoByLessonId", lessonController.getVideoByLessonId);
+router.post("/getBookByLessonId", lessonController.getBookByLessonId);
 export default router;
