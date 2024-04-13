@@ -1,5 +1,6 @@
 function isNumberString(value: string): boolean {
-  return !isNaN(Number(value));
+  const reg = /^\d+$/;
+  return reg.test(value);
 }
 
 export default {
