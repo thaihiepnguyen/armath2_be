@@ -1,11 +1,12 @@
 import {Request, Response} from 'express';
 import exerciseService from "../services/exercise.service.js";
+import  numberUtil  from '../util/number.util.js';
 
 async function getExerciseById(req: Request, res: Response): Promise<any> {
   try {
     const { exerciseId } = req.params;
     const exerciseIdNumber = Number(exerciseId);
-    if (isNaN(exerciseIdNumber)) {
+    if (!numberUtil.isNumberString(exerciseId) ){
       throw new Error('exerciseId must be a number');
     }
     const exercise = await exerciseService.getExerciseById(exerciseIdNumber);
