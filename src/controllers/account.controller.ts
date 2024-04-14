@@ -6,7 +6,8 @@ async function loginByEmail(req: Request, res: Response): Promise<any> {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({
-      message: "email and password are required"
+      message: "email and password are required",
+      isSuccessful: false
     });
   }
 
@@ -20,11 +21,14 @@ async function loginByEmail(req: Request, res: Response): Promise<any> {
   if (isSuccessful) {
     cookieUtil.setCookie(res, data);
     return res.status(200).json({
-      message
+      message,
+      isSuccessful: true,
+      data: data.uid
     });
   } else {
     return res.status(errorCode).json({
-      message
+      message,
+      isSuccessful: false
     });
   }
 }
@@ -33,17 +37,20 @@ async function registerByEmail(req: Request, res: Response): Promise<any> {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({
-      message: "email and password are required"
+      message: "email and password are required",
+      isSuccessful: false
     });
   }
 
   const {
     message,
     errorCode,
+    isSuccessful
   } = await accountService.registerByEmail(email, password);
 
   return res.status(errorCode).json({
-    message
+    message,
+    isSuccessful
   });
 }
 
