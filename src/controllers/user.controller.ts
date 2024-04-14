@@ -11,15 +11,15 @@ async function getUserById(req: Request, res: Response): Promise<any> {
       message: "id is not a number"
     });
   }
-
+  const userId = Number(id);
   const uid = metadata.uid;
-  if (uid !== Number(id)) {
+  if (uid !== userId) {
     return res.status(403).json({
       message: "Forbidden"
     });
   }
 
-  const user = await userService.getUserById(Number(id));
+  const user = await userService.getUserById(userId);
 
   return res.status(200).json({
     message: user ? `User id ${id} is found` : `User id ${id} is not found`,
