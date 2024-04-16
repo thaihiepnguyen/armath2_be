@@ -20,7 +20,8 @@ async function getExerciseById(req: Request, res: Response): Promise<any> {
       message: `Internal error`
     });
   }
-}async function getAllExercise(req: Request, res: Response): Promise<any> {
+}
+async function getAllExercise(req: Request, res: Response): Promise<any> {
   try {
 
     const exercises = await exerciseService.getAllExercise();
@@ -35,8 +36,57 @@ async function getExerciseById(req: Request, res: Response): Promise<any> {
     });
   }
 }
-
+async function getExercisesByLessonId(req: Request, res: Response): Promise<any> {
+  try {
+    const { lessonId } = req.params;
+    const lessonIdNumber = Number(lessonId);
+    if (!numberUtil.isNumberString(lessonId) ){
+      throw new Error('exerciseId must be a number');
+    }
+    const exercise = await exerciseService.getAllExerciseByLessonId(lessonIdNumber);
+    if(!exercise || exercise.length === 0){
+      return res.status(404).json({
+        message: `Exercises are not found`,
+        
+      });
+    }
+    return res.status(200).json({
+      message: exercise ? `Exercises with lesson id:${lessonId} are found` : `Exercises with lesson id:${lessonId} are not found`,
+      data: exercise
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: `Internal error`
+    });
+  }
+}
+async function getExercisesByTestId(req: Request, res: Response): Promise<any> {
+  try {
+    const { testId } = req.params;
+    const testIdNumber = Number(testId);
+    if (!numberUtil.isNumberString(testId) ){
+      throw new Error('exerciseId must be a number');
+    }
+    const exercise = await exerciseService.getAllExerciseByTestId(testIdNumber);
+    if(!exercise || exercise.length === 0){
+      return res.status(404).json({
+        message: `Exercises are not found`,
+        
+      });
+    }
+    return res.status(200).json({
+      message: exercise ? `Exercises with test id:${testId} are found` : `Exercises with test id:${testId} are not found`,
+      data: exercise
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: `Internal error`
+    });
+  }
+}
 export default {
     getExerciseById,
-    getAllExercise
+    getAllExercise,
+    getExercisesByLessonId,
+    getExercisesByTestId,
 }
