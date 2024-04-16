@@ -1,7 +1,7 @@
 export interface UserEntity {
   user_id: number;
   email: string;
-  password: string;
+  password?: string;
   eventpoint: number;
   star: number;
   is_valid: boolean;

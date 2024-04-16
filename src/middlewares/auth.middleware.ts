@@ -3,7 +3,7 @@ import {JWTError, TMetadata, TPayload} from "../app.typing.js";
 import jwt from "jsonwebtoken";
 
 function authenticate(req: Request, res: Response, next: NextFunction) {
-  const { act } = req.cookies;
+  const act = req.headers.authorization?.split(' ')[1];
   if (!act) {
     return res.status(401).json({
         message: "Unauthorized"

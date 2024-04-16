@@ -3,6 +3,9 @@ import "dotenv/config";
 import accountRoute from "./routes/account.route.js";
 import userRoute from "./routes/user.route.js";
 import cookieParser from "cookie-parser";
+import lessonRoute from "./routes/lesson.route.js";
+import exerciseRoute from "./routes/exercise.route.js";
+
 
 const app: Express = express();
 
@@ -20,6 +23,8 @@ app.use("/users", userRoute);
 app.get("/health", (req: Request, res: Response) => {
   res.sendStatus(200)
 });
+app.use("/lessons", lessonRoute);
+app.use("/exercises", exerciseRoute);
 
 app.listen(process.env.PORT || 3000, (): void => {
     console.log(`Server is running on port http://localhost:${process.env.PORT}`);
