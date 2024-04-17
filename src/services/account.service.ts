@@ -2,15 +2,17 @@ import db from "../util/db.js";
 import {generateUsername} from "unique-username-generator";
 import {JWTError, TBaseDto, TCookieData, TMetadata, TPayload} from "../app.typing.js";
 import * as bcrypt from "bcrypt";
-import {UserEntity} from "../entities/user.entity.js";
+import {UserLoginDataEntity} from "../entities/userLoginData.entity.js";
 import jwt from "jsonwebtoken";
 import appConst from "../app.const.js";
 import {TemplateEmailEntity} from "../entities/templateEmail.entity.js";
 import mailService from "./mail.service.js";
-import userService from "./user.service.js";
+import userService from "./userLoginData.service.js";
+import userAccountService from "./userAccount.service.js";
+import { UserAccountEntity } from "../entities/userAccount.entity.js";
 
 async function loginByEmail(email: string, password: string): Promise<TBaseDto<any>> {
-  const user: UserEntity | undefined = await userService.getUserByEmail(email);
+  const user: UserLoginDataEntity | undefined = await userService.getUserByEmail(email);
   if (!user) {
     return {
       isSuccessful: false,
@@ -35,11 +37,19 @@ async function loginByEmail(email: string, password: string): Promise<TBaseDto<a
       errorCode: 400
     }
   }
-
+  const userAccount: UserAccountEntity | undefined = await userAccountService.getUserByEmail(email);
+  if(!userAccount){
+    return {
+      isSuccessful: false,
+      message: "email not found",
+      errorCode: 404
+    }
+  }
+    
   const payload: TPayload = {
-    uid: user.user_id,
-    email: user.email,
-    uname: user.name
+    uid: userAccount.user_id,
+    email: userAccount.email,
+    uname: userAccount.name
   }
 
   const accessToken = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
@@ -56,14 +66,14 @@ async function loginByEmail(email: string, password: string): Promise<TBaseDto<a
     data: {
       act: accessToken,
       rft: refreshToken,
-      uid: user.user_id
+      uid: userAccount.user_id
     },
     errorCode: 200
   }
 }
 
 async function registerByEmail(email: string, password: string): Promise<TBaseDto<undefined>> {
-  const user: UserEntity | undefined = await userService.getUserByEmail(email);
+  const user: UserLoginDataEntity | undefined = await userService.getUserByEmail(email);
   if (user) {
     return {
       isSuccessful: false,
@@ -74,13 +84,22 @@ async function registerByEmail(email: string, password: string): Promise<TBaseDt
 
   password = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUNDS as string) || 10);
   try {
-    const newUser = await db<UserEntity>("users").insert({
+    const userAccount: UserAccountEntity | undefined = await userAccountService.getUserByEmail(email);
+    var newUserAccount;
+    var id;
+    if(!userAccount){
+      newUserAccount = await db<UserAccountEntity>("user_account").insert({
+        email,
+        name: generateUsername("", 3)
+      }).returning('user_id');
+      id = newUserAccount[0].user_id;
+    }
+    else id = userAccount.user_id;
+    const newUser = await db<UserLoginDataEntity>("user_login_data").insert({
+      user_id: id,
       email,
       password,
-      name: generateUsername("", 3)
-    }).returning('user_id');
-
-    const newId = newUser[0].user_id;
+    });
 
     const emailTemplate = await db<TemplateEmailEntity>("email_templates").where("id", 50).first();
     if (!emailTemplate) {
@@ -90,7 +109,7 @@ async function registerByEmail(email: string, password: string): Promise<TBaseDt
         errorCode: 500
       }
     }
-    const user = await userService.getUserById(newId)
+    const user = await userAccountService.getUserById(id);
     if (!user) {
       return {
         isSuccessful: false,
@@ -142,7 +161,7 @@ async function verifyEmail(token: string): Promise<TBaseDto<undefined>> {
     }
   }
 
-  await db<UserEntity>("users").where("user_id", decoded.uid).update({
+  await db<UserLoginDataEntity>("user_login_data").where("user_id", decoded.uid).update({
     is_valid: true
   });
 
@@ -197,11 +216,18 @@ async function resendVerificationEmail(email: string): Promise<TBaseDto<undefine
       errorCode: 404
     }
   }
-
+  const userAccount = await userAccountService.getUserById(user.user_id);
+  if(!userAccount){
+    return {
+      isSuccessful: false,
+      message: "email not found",
+      errorCode: 404
+    }
+  }
   const payload: TPayload = {
-    uid: user.user_id,
-    email: user.email,
-    uname: user.name
+    uid: userAccount.user_id,
+    email: userAccount.email,
+    uname: userAccount.name
   }
 
   if (user.is_valid) {
