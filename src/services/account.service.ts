@@ -7,12 +7,14 @@ import jwt from "jsonwebtoken";
 import appConst from "../app.const.js";
 import {TemplateEmailEntity} from "../entities/templateEmail.entity.js";
 import mailService from "./mail.service.js";
-import userService from "./userLoginData.service.js";
+import userLoginDataService from "./userLoginData.service.js";
+import userLoginDataExternalService from "./userLoginDataExternal.service.js";
 import userAccountService from "./userAccount.service.js";
 import { UserAccountEntity } from "../entities/userAccount.entity.js";
+import { UserLoginDataExternalEntity } from "../entities/userLoginDataExternal.entity.js";
 
 async function loginByEmail(email: string, password: string): Promise<TBaseDto<any>> {
-  const user: UserLoginDataEntity | undefined = await userService.getUserByEmail(email);
+  const user: UserLoginDataEntity | undefined = await userLoginDataService.getUserByEmail(email);
   if (!user) {
     return {
       isSuccessful: false,
@@ -72,8 +74,92 @@ async function loginByEmail(email: string, password: string): Promise<TBaseDto<a
   }
 }
 
+async function loginExternalParty(email: string, uid: string, token: string): Promise<TBaseDto<any>> {
+  const user: UserLoginDataExternalEntity | undefined = await userLoginDataExternalService.getUserByEmail(email);
+  if (!user) {
+    const userAccount: UserAccountEntity | undefined = await userAccountService.getUserByEmail(email);
+    var id;
+    if(!userAccount){
+      try {
+        const newUserAccount = await db<UserAccountEntity>("user_account").insert({
+          email,
+          name: generateUsername("", 3)
+        }).returning('user_id');
+        id = newUserAccount[0].user_id;
+      } catch (error) {
+        return {
+          isSuccessful: false,
+          message: "Internal Error",
+          errorCode: 500
+        }
+      }
+    }
+    else{
+      id = userAccount.user_id;
+    }
+    try {
+      const newUserExternal = await db<UserLoginDataExternalEntity>("user_login_data_external").insert({
+        user_id: id,
+        external_uid: uid,
+        external_token: token,
+        email,
+      });
+    } catch (error) {
+      return {
+        isSuccessful: false,
+        message: "Internal Error",
+        errorCode: 500
+      }
+    }
+  }
+  else{
+    try {
+      const updateUserExternal = await db<UserLoginDataExternalEntity>("user_login_data_external").where("email", email).update("external_token",token);
+    } catch (error) {
+      return {
+        isSuccessful: false,
+        message: "Internal Error",
+        errorCode: 500
+      }
+    }
+  }
+
+  const userAccount: UserAccountEntity | undefined = await userAccountService.getUserByEmail(email);
+  if(!userAccount){
+    return {
+      isSuccessful: false,
+      message: "Internal Error",
+      errorCode: 500
+    }
+  }
+  const payload: TPayload = {
+    uid: userAccount.user_id,
+    email: userAccount.email,
+    uname: userAccount.name
+  }
+
+  const accessToken = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
+    expiresIn: appConst.EXPIRES_ACCESS_TOKEN_IN
+  });
+
+  const refreshToken = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
+    expiresIn: appConst.EXPIRES_REFRESH_TOKEN_IN
+  });
+
+  return {
+    isSuccessful: true,
+    message: "login success",
+    data: {
+      act: accessToken,
+      rft: refreshToken,
+      uid: userAccount.user_id
+    },
+    errorCode: 200
+  }
+}
+
 async function registerByEmail(email: string, password: string): Promise<TBaseDto<undefined>> {
-  const user: UserLoginDataEntity | undefined = await userService.getUserByEmail(email);
+  const user: UserLoginDataEntity | undefined = await userLoginDataService.getUserByEmail(email);
   if (user) {
     return {
       isSuccessful: false,
@@ -88,11 +174,19 @@ async function registerByEmail(email: string, password: string): Promise<TBaseDt
     var newUserAccount;
     var id;
     if(!userAccount){
-      newUserAccount = await db<UserAccountEntity>("user_account").insert({
-        email,
-        name: generateUsername("", 3)
-      }).returning('user_id');
-      id = newUserAccount[0].user_id;
+      try {
+        newUserAccount = await db<UserAccountEntity>("user_account").insert({
+          email,
+          name: generateUsername("", 3)
+        }).returning('user_id');
+        id = newUserAccount[0].user_id;
+      } catch (error) {
+        return {
+          isSuccessful: false,
+          message: "Internal Error",
+          errorCode: 500
+        }
+      }
     }
     else id = userAccount.user_id;
     const newUser = await db<UserLoginDataEntity>("user_login_data").insert({
@@ -144,7 +238,7 @@ async function verifyEmail(token: string): Promise<TBaseDto<undefined>> {
     }
   }
 
-  const user = await userService.getUserById(decoded.uid);
+  const user = await userLoginDataService.getUserById(decoded.uid);
   if (!user) {
     return {
       isSuccessful: false,
@@ -208,7 +302,7 @@ function refreshToken(rft: string): TBaseDto<TCookieData> {
 }
 
 async function resendVerificationEmail(email: string): Promise<TBaseDto<undefined>> {
-  const user = await userService.getUserByEmail(email);
+  const user = await userLoginDataService.getUserByEmail(email);
   if (!user) {
     return {
       isSuccessful: false,
@@ -246,5 +340,6 @@ export default {
   registerByEmail,
   verifyEmail,
   refreshToken,
-  resendVerificationEmail
+  resendVerificationEmail,
+  loginExternalParty,
 }

@@ -120,11 +120,43 @@ function logout(req: Request, res: Response): any {
   });
 }
 
+async function loginExternalParty(req: Request, res: Response): Promise<any> {
+  const { email, uid, token } = req.body;
+  if (!email || !uid || !token) {
+    return res.status(400).json({
+      message: "required information is empty",
+      isSuccessful: false
+    });
+  }
+
+  const {
+    isSuccessful,
+    message,
+    data,
+    errorCode
+  } = await accountService.loginExternalParty(email, uid, token);
+
+  if (isSuccessful) {
+    cookieUtil.setCookie(res, data);
+    return res.status(200).json({
+      message,
+      isSuccessful: true,
+      data: data.uid
+    });
+  } else {
+    return res.status(errorCode).json({
+      message,
+      isSuccessful: false
+    });
+  }
+}
+
 export default {
   loginByEmail,
   registerByEmail,
   verifyEmail,
   refreshToken,
   resendVerificationEmail,
-  logout
+  logout,
+  loginExternalParty,
 }
