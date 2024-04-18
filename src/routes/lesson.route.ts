@@ -7,5 +7,5 @@ router.get("/chapters", authMiddleware.authenticate, lessonController.getAllChap
 router.post("/get-lessons-by-chapter-id", authMiddleware.authenticate, lessonController.getLessonByChapter);
 router.post("/get-video-by-lesson-id", authMiddleware.authenticate, lessonController.getVideoByLessonId);
 router.post("/get-book-by-lesson-id", authMiddleware.authenticate, lessonController.getBookByLessonId);
-router.get("/get-chapter-by-semester/:semester", lessonController.getChapterBySemester);
+router.get("/get-chapter-by-semester/:semester",  authMiddleware.authenticate, lessonController.getChapterBySemester);
 export default router;
