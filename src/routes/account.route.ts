@@ -4,6 +4,7 @@ import accountController from "../controllers/account.controller.js";
 const router: Router = express.Router();
 
 router.post("/login-by-email", accountController.loginByEmail);
+router.post("/login-external-party", accountController.loginExternalParty);
 router.post("/register-by-email", accountController.registerByEmail);
 router.get("/verify-email", accountController.verifyEmail);
 router.post("/resend-verification-email", accountController.resendVerificationEmail);
