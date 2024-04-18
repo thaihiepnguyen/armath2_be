@@ -1,5 +1,5 @@
 import {Request, Response} from 'express';
-import userService from "../services/user.service.js";
+import userService from "../services/userLoginData.service.js";
 import numberUtil from "../util/number.util.js";
 
 async function getUserById(req: Request, res: Response): Promise<any> {
