@@ -16,7 +16,27 @@ async function getLessonByChapter(req: Request, res: Response): Promise<any> {
     });
   }
   
+
 }
+
+async function getChapterBySemester(req: Request, res: Response): Promise<any> {
+  try {
+    // const { semester } = req.body;
+    const semester = req.params.semester;
+    const chapters = await lessonService.getChapterBySemester(semester);
+
+    return res.status(200).json({
+      message: chapters ? `All chapters are found` : `All chapters are not found`,
+      data: chapters
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: `Internal error`
+    });
+  }
+}
+
+
 async function getAllChapter(req: Request, res: Response): Promise<any> {
   try {
     const chapters = await lessonService.getAllChapter();
@@ -68,5 +88,6 @@ export default {
     getAllChapter,
     getLessonByChapter,
     getBookByLessonId,
-    getVideoByLessonId
+    getVideoByLessonId,
+    getChapterBySemester
 }

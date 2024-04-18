@@ -19,9 +19,15 @@ async function getBookByLessonId(id: string): Promise<string[] | undefined> {
 }
 
 
+async function getChapterBySemester(semester: string): Promise<String[] | undefined> {
+  return db<String>("lessons").where("semester",semester).select("chapter").distinct().orderBy("chapter");
+}
+
+
 export default {
     getLessonByChapter,
     getAllChapter,
     getVideoByLessonId,
     getBookByLessonId,
+    getChapterBySemester,
 }
