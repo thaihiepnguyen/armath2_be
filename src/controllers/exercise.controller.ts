@@ -7,7 +7,9 @@ async function getExerciseById(req: Request, res: Response): Promise<any> {
     const { exerciseId } = req.params;
     const exerciseIdNumber = Number(exerciseId);
     if (!numberUtil.isNumberString(exerciseId) ){
-      throw new Error('exerciseId must be a number');
+      return res.status(400).json({
+        message: `Semester must be a number`
+      });
     }
     const exercise = await exerciseService.getExerciseById(exerciseIdNumber);
 
