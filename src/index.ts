@@ -5,13 +5,13 @@ import userRoute from "./routes/user.route.js";
 import cookieParser from "cookie-parser";
 import lessonRoute from "./routes/lesson.route.js";
 import exerciseRoute from "./routes/exercise.route.js";
-
+import morgan from "morgan";
 
 const app: Express = express();
 
 // Middleware
 app.use(cookieParser());
-
+app.use(morgan("dev"));
 // Parse incoming requests data
 app.use(express.json());
 app.use(express.urlencoded({

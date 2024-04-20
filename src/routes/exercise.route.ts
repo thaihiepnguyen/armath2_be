@@ -5,4 +5,6 @@ const router: Router = Router();
 
 router.get("/:exerciseId",  exerciseController.getExerciseById);
 router.get("/",  exerciseController.getAllExercise);
+router.get("/lesson/:lessonId",  exerciseController.getExercisesByLessonId);
+router.get("/test/:testId",  exerciseController.getExercisesByTestId);
 export default router;
