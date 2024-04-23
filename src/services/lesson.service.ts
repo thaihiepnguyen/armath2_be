@@ -4,7 +4,7 @@ import {ChapterEntity} from "../entities/chapter.entity.js";
 
 
 async function getLessonByChapter(chapter: string): Promise<LessonEntity[] | undefined> {
-  return db<LessonEntity>("lessons")
+  return db<LessonEntity>("lessons").select("lessons.*") 
     .innerJoin('chapters', 'lessons.chapter_id', 'chapters.chapter_id')
     .where('chapters.name', chapter).orderBy("lesson_id");
 }
