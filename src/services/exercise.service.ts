@@ -15,9 +15,17 @@ async function getAllExerciseByTestId(id: number): Promise<ExerciseEntity[] | un
   return db<ExerciseEntity>("exercises").where("test_id", id);
 }
 
+async function getExerciseByType(type: string): Promise<ExerciseEntity[] | undefined> {
+  var result = await db<ExerciseEntity>("exercises").where("type", type);
+  return result.length > 0 ? result : undefined;
+}
+
+
+
 export default {
     getExerciseById,
     getAllExercise,
     getAllExerciseByLessonId,
-    getAllExerciseByTestId
+    getAllExerciseByTestId,
+    getExerciseByType
 }
