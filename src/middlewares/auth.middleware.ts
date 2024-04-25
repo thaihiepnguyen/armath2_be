@@ -4,13 +4,14 @@ import jwt from "jsonwebtoken";
 
 function authenticate(req: Request, res: Response, next: NextFunction) {
   const act = req.headers.authorization?.split(' ')[1];
-  if (!act) {
+  const cookieAct = req.cookies['act'];
+  if (!act && !cookieAct) {
     return res.status(401).json({
         message: "Unauthorized"
     });
   }
   try {
-    const decoded = jwt.verify(act, process.env.JWT_SECRET || 'secret') as TPayload;
+    const decoded = jwt.verify(act || cookieAct, process.env.JWT_SECRET || 'secret') as TPayload;
     req.body.metadata = {
       uid: decoded.uid,
       uname: decoded.uname
