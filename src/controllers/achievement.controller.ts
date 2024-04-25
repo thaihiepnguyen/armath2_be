@@ -12,6 +12,12 @@ async function getAchievementsByUserId(req: Request, res: Response): Promise<any
   }
 
   const achievements = await achievementService.getAchievementsByUserId(userId);
+  if (!achievements) {
+    return res.status(500).json({
+      isSuccessful: false,
+      message: "Internal server error"
+    });
+  }
 
   return res.status(200).json({
     isSuccessful: true,
