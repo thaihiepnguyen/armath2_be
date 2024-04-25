@@ -26,21 +26,20 @@ async function getExerciseById(req: Request, res: Response): Promise<any> {
 
 
 
-  async function getExerciseByType(req: Request, res: Response): Promise<any> {
-    try {
-      const { type }  = req.body;
-      const exercise = await exerciseService.getExerciseByType(type);
-  
-      return res.status(200).json({
-        message: exercise ? `Exercise ${type} is found` : `Exercise ${type} is not found`,
-        data: exercise
-      });
-    } catch (error) {
-      return res.status(500).json({
-        message: `Internal error`
-      });
-    }
+async function getExerciseByType(req: Request, res: Response): Promise<any> {
+  try {
+    const { type }  = req.body;
+    const exercise = await exerciseService.getExerciseByType(type);
 
+    return res.status(200).json({
+      message: exercise ? `Exercise ${type} is found` : `Exercise ${type} is not found`,
+      data: exercise
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: `Internal error`
+    });
+  }
 }
 
 async function getAllExercise(req: Request, res: Response): Promise<any> {
