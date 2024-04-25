@@ -26,6 +26,8 @@ app.get("/health", (req: Request, res: Response) => {
 app.use("/lessons", lessonRoute);
 app.use("/exercises", exerciseRoute);
 
-app.listen(process.env.PORT || 3000, (): void => {
-    console.log(`Server is running on port http://localhost:${process.env.PORT}`);
+const port = 3000;
+
+app.listen(port, (): void => {
+    console.log(`Server is running on ${process.env.DOMAIN == 'local' ? process.env.SERVER_URL_LOCAL : process.env.SERVER_URL_DEV}`);
 });
