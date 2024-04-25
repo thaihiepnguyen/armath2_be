@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import lessonRoute from "./routes/lesson.route.js";
 import exerciseRoute from "./routes/exercise.route.js";
 import morgan from "morgan";
+import shopRoute from "./routes/shop.route.js";
 
 const app: Express = express();
 
@@ -25,6 +26,7 @@ app.get("/health", (req: Request, res: Response) => {
 });
 app.use("/lessons", lessonRoute);
 app.use("/exercises", exerciseRoute);
+app.use("/shop", shopRoute);
 
 app.listen(process.env.PORT || 3000, (): void => {
     console.log(`Server is running on port http://localhost:${process.env.PORT}`);
