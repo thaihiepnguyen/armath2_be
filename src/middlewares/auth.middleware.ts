@@ -12,7 +12,7 @@ function authenticate(req: Request, res: Response, next: NextFunction) {
   try {
     const decoded = jwt.verify(act, process.env.JWT_SECRET || 'secret') as TPayload;
     req.body.metadata = {
-      uid: decoded.uid,
+      uid: +decoded.uid,
       uname: decoded.uname
     } as TMetadata;
     next();
