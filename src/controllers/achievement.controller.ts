@@ -28,7 +28,26 @@ async function getAchievementsByUserId(req: Request, res: Response): Promise<any
   });
 }
 
+async function getReward(req: Request, res: Response): Promise<any> {
+  const { metadata, price, achievement_id } = req.body;
+  const user_id = metadata?.uid;
+  if (!user_id) {
+    return res.status(400).json({
+      isSuccessful: false,
+      message: "userId is required"
+    });
+  }
+
+  await achievementService.getReward(user_id, achievement_id, price);
+  return res.status(200).json({
+    isSuccessful: true,
+    message: 'success',
+    data: null
+  });
+}
+
 
 export default {
-  getAchievementsByUserId
+  getAchievementsByUserId,
+  getReward
 }

@@ -1,3 +1,5 @@
+import { UserAccountEntity } from "../entities/userAccount.entity.js";
+import { UserAchievements } from "../entities/userAchievements.entity.js";
 import db from "../util/db.js";
 
 type Achievement = {
@@ -30,7 +32,23 @@ async function getAchievementsByUserId(userId: number): Promise<Achievement[] | 
   }
 }
 
+async function getReward(userId: number, achievementId: number, price: number): Promise<void> {
+  try {
+    await db<UserAchievements>("user_achievements").update({
+      is_claimed: true
+    }).where({
+      user_id: userId,
+      achievement_id: achievementId
+    });
+  
+    await db<UserAccountEntity>("user_account").increment("coin", price).where("user_id", userId);
+  } catch(e: any) {
+    console.log(e.message)
+  }
+}
+
 
 export default {
-  getAchievementsByUserId
+  getAchievementsByUserId,
+  getReward
 }
