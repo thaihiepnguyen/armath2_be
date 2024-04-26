@@ -5,6 +5,8 @@ import userRoute from "./routes/user.route.js";
 import cookieParser from "cookie-parser";
 import lessonRoute from "./routes/lesson.route.js";
 import exerciseRoute from "./routes/exercise.route.js";
+import questionResultRoute from "./routes/questionResult.route.js";
+import testResultRoute from "./routes/testResult.route.js";
 import morgan from "morgan";
 
 const app: Express = express();
@@ -25,6 +27,8 @@ app.get("/health", (req: Request, res: Response) => {
 });
 app.use("/lessons", lessonRoute);
 app.use("/exercises", exerciseRoute);
+app.use("/question_result", questionResultRoute);
+app.use("/test_result", testResultRoute);
 
 app.listen(process.env.PORT || 3000, (): void => {
     console.log(`Server is running on port http://localhost:${process.env.PORT}`);
