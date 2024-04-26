@@ -4,6 +4,7 @@ export interface UserAccountEntity {
     email: string;
     eventpoint: number;
     star: number;
+    coin: number;
     created_at: Date;
     updated_at: Date;
   }
