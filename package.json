@@ -7,9 +7,9 @@
   "scripts": {
     "build": "npx tsc",
     "prestart": "npm run build",
-    "start": "node dist/index.js",
+    "start": "node dist/src/index.js",
     "predev": "npm run build",
-    "dev": "concurrently  \"npx tsc -w\"  \"nodemon -q -V dist/index.js\""
+    "dev": "concurrently  \"npx tsc -w\"  \"nodemon -q -V dist/src/index.js\""
   },
   "repository": {
     "type": "git",
@@ -32,6 +32,7 @@
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "firebase-admin": "^12.1.0",
     "jsonwebtoken": "^9.0.2",
     "knex": "^3.1.0",
     "morgan": "^1.10.0",

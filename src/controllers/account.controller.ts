@@ -1,6 +1,6 @@
 import {Request, Response} from 'express';
 import accountService from "../services/account.service.js";
-import cookieUtil from "../util/cookie.util.js";
+import cookieUtil from "../utils/cookie.util.js";
 
 async function loginByEmail(req: Request, res: Response): Promise<any> {
   const { email, password } = req.body;

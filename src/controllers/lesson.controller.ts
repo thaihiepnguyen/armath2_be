@@ -1,6 +1,6 @@
 import {Request, Response} from 'express';
 import lessonService from "../services/lesson.service.js";
-import numberUtil from "../util/number.util.js";
+import numberUtil from "../utils/number.util.js";
 
 async function getLessonByChapter(req: Request, res: Response): Promise<any> {
   try {

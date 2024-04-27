@@ -7,44 +7,32 @@ import lessonRoute from "./routes/lesson.route.js";
 import exerciseRoute from "./routes/exercise.route.js";
 import imageRoute from "./routes/image.route.js";
 import morgan from "morgan";
-import fs from 'node:fs';
+import achievementRoute from "./routes/achievement.route.js";
+import shopRoute from "./routes/shop.route.js";
 
-const folderUsers = './dist/images/users';
-const folderBooks = './dist/images/books';
 try {
-  if (!fs.existsSync(folderUsers)) {
-    fs.mkdir(folderUsers, {recursive: true}, err => {})
-  }
-  if (!fs.existsSync(folderBooks)) {
-    fs.mkdir(folderBooks, {recursive: true}, err => {})
-  }
-} catch (err) {
-  console.error(err);
+  const app: Express = express();
+
+  app.use(cookieParser())
+    .use(morgan("dev"))
+    .use(express.json())
+    .use(express.urlencoded({extended: true}))
+    .use("/account", accountRoute)
+    .use("/users", userRoute)
+    .use("/lessons", lessonRoute)
+    .use("/exercises", exerciseRoute)
+    .use("/images", imageRoute)
+    .use("/achievements", achievementRoute)
+    .use("/shop", shopRoute)
+    .get("/health", (req: Request, res: Response) => {
+      res.sendStatus(200);
+    });
+
+  const port = 3000;
+
+  app.listen(port, (): void => {
+    console.log(`Server is running on ${process.env.DOMAIN == 'local' ? process.env.SERVER_URL_LOCAL : process.env.SERVER_URL_DEV}`);
+  });
+} catch (e: any) {
+  console.log(e.message)
 }
-
-const app: Express = express();
-
-// Middleware
-app.use(cookieParser());
-app.use(morgan("dev"));
-// Parse incoming requests data
-app.use(express.json());
-app.use(express.urlencoded({
-  extended: true
-}));
-
-app.use("/account", accountRoute);
-app.use("/users", userRoute);
-app.use("/lessons", lessonRoute);
-app.use("/exercises", exerciseRoute);
-app.use("/images", imageRoute);
-
-app.get("/health", (req: Request, res: Response) => {
-  res.sendStatus(200)
-});
-
-
-
-app.listen(process.env.PORT || 3000, (): void => {
-    console.log(`Server is running on port http://localhost:${process.env.PORT}`);
-});

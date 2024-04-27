@@ -3,7 +3,7 @@ import {TBaseDto, TPayload} from "../app.typing.js";
 import appConst from "../app.const.js";
 import jwt from "jsonwebtoken";
 import {TemplateEmailEntity} from "../entities/templateEmail.entity.js";
-import db from "../util/db.js";
+import dbUtil from "../utils/db.util.js";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendEmailVerification(payload: TPayload, templateId: number): Promise<TBaseDto<undefined>> {
-  const emailTemplate = await db<TemplateEmailEntity>("email_templates").where("id", templateId).first();
+  const emailTemplate = await dbUtil<TemplateEmailEntity>("email_templates").where("id", templateId).first();
   if (!emailTemplate) {
     return {
       isSuccessful: false,
@@ -33,7 +33,7 @@ async function sendEmailVerification(payload: TPayload, templateId: number): Pro
     subject: "Verification Email",
     html: emailTemplate.content
       .replace("$user_name$", payload.uname)
-      .replace("$url$", `${process.env.SERVER_URL_LOCAL}:${process.env.PORT}`)
+      .replace("$url$", `${process.env.DOMAIN == 'local' ? process.env.SERVER_URL_LOCAL: process.env.SERVER_URL_DEV}`)
       .replace("$token$", accessToken),
   });
   return {
