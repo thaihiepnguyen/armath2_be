@@ -10,7 +10,13 @@ async function getUserById(user_id: number): Promise<UserAccountEntity | undefin
   return db<UserAccountEntity>("user_account").where("user_id", user_id).first();
 }
 
+async function getCoinByUserId(user_id: number): Promise<number | undefined> {
+  const data = await db<UserAccountEntity>("user_account").select("coin").where("user_id", user_id).first();
+  return data?.coin;
+}
+
 export default {
   getUserByEmail,
-  getUserById
+  getUserById,
+  getCoinByUserId
 }
