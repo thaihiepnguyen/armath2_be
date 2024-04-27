@@ -1,6 +1,6 @@
 import "dotenv/config";
 import knex from "knex";
-const dbUtil = knex({
+const db = knex({
   client: "pg",
   connection: {
     host: process.env.DB_HOST,
@@ -11,4 +11,4 @@ const dbUtil = knex({
     ssl:true,
   },
 });
-export default dbUtil;
+export default db;

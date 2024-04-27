@@ -1,6 +1,6 @@
 import { UserAccountEntity } from "../entities/userAccount.entity.js";
 import { UserAchievementsEntity } from "../entities/userAchievements.entity.js";
-import dbUtil from "../utils/db.util.js";
+import db from "../utils/db.util.js";
 
 type Achievement = {
   id: number;
@@ -24,7 +24,7 @@ async function getAchievementsByUserId(userId: number): Promise<Achievement[] | 
       FROM achievements AS a
       LEFT JOIN user_achievements ua ON a.achievement_id = ua.achievement_id AND ua.user_id = ?;
   `
-    const rawData = await dbUtil.raw(sql, [userId]);
+    const rawData = await db.raw(sql, [userId]);
     return rawData['rows'];
   } catch (e) {
     console.error(e);
@@ -34,14 +34,14 @@ async function getAchievementsByUserId(userId: number): Promise<Achievement[] | 
 
 async function getReward(userId: number, achievementId: number, price: number): Promise<void> {
   try {
-    await dbUtil<UserAchievementsEntity>("user_achievements").update({
+    await db<UserAchievementsEntity>("user_achievements").update({
       is_claimed: true
     }).where({
       user_id: userId,
       achievement_id: achievementId
     });
   
-    await dbUtil<UserAccountEntity>("user_account").increment("coin", price).where("user_id", userId);
+    await db<UserAccountEntity>("user_account").increment("coin", price).where("user_id", userId);
   } catch(e: any) {
     console.log(e.message)
   }

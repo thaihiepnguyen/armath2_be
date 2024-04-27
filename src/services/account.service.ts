@@ -1,4 +1,4 @@
-import dbUtil from "../utils/db.util.js";
+import db from "../utils/db.util.js";
 import {generateUsername} from "unique-username-generator";
 import {JWTError, TBaseDto, TCookieData, TMetadata, TPayload} from "../app.typing.js";
 import * as bcrypt from "bcrypt";
@@ -81,7 +81,7 @@ async function loginExternalParty(email: string, uid: string, token: string): Pr
     var id;
     if(!userAccount){
       try {
-        const newUserAccount = await dbUtil<UserAccountEntity>("user_account").insert({
+        const newUserAccount = await db<UserAccountEntity>("user_account").insert({
           email,
           name: generateUsername("", 3)
         }).returning('user_id');
@@ -98,7 +98,7 @@ async function loginExternalParty(email: string, uid: string, token: string): Pr
       id = userAccount.user_id;
     }
     try {
-      const newUserExternal = await dbUtil<UserLoginDataExternalEntity>("user_login_data_external").insert({
+      const newUserExternal = await db<UserLoginDataExternalEntity>("user_login_data_external").insert({
         user_id: id,
         external_uid: uid,
         external_token: token,
@@ -114,7 +114,7 @@ async function loginExternalParty(email: string, uid: string, token: string): Pr
   }
   else{
     try {
-      const updateUserExternal = await dbUtil<UserLoginDataExternalEntity>("user_login_data_external").where("email", email).update("external_token",token);
+      const updateUserExternal = await db<UserLoginDataExternalEntity>("user_login_data_external").where("email", email).update("external_token",token);
     } catch (error) {
       return {
         isSuccessful: false,
@@ -175,7 +175,7 @@ async function registerByEmail(email: string, password: string): Promise<TBaseDt
     var id;
     if(!userAccount){
       try {
-        newUserAccount = await dbUtil<UserAccountEntity>("user_account").insert({
+        newUserAccount = await db<UserAccountEntity>("user_account").insert({
           email,
           name: generateUsername("", 3)
         }).returning('user_id');
@@ -189,13 +189,13 @@ async function registerByEmail(email: string, password: string): Promise<TBaseDt
       }
     }
     else id = userAccount.user_id;
-    const newUser = await dbUtil<UserLoginDataEntity>("user_login_data").insert({
+    const newUser = await db<UserLoginDataEntity>("user_login_data").insert({
       user_id: id,
       email,
       password,
     });
 
-    const emailTemplate = await dbUtil<TemplateEmailEntity>("email_templates").where("id", 50).first();
+    const emailTemplate = await db<TemplateEmailEntity>("email_templates").where("id", 50).first();
     if (!emailTemplate) {
       return {
         isSuccessful: false,
@@ -255,7 +255,7 @@ async function verifyEmail(token: string): Promise<TBaseDto<undefined>> {
     }
   }
 
-  await dbUtil<UserLoginDataEntity>("user_login_data").where("user_id", decoded.uid).update({
+  await db<UserLoginDataEntity>("user_login_data").where("user_id", decoded.uid).update({
     is_valid: true
   });
 

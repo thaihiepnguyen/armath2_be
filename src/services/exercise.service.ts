@@ -1,22 +1,22 @@
 import { ExerciseEntity } from "../entities/exercise.entity.js";
-import dbUtil from "../utils/db.util.js";
+import db from "../utils/db.util.js";
 
 
 async function getExerciseById(id: number): Promise<ExerciseEntity[] | undefined> {
-  return dbUtil<ExerciseEntity>("exercises").where("exercise_id", id);
+  return db<ExerciseEntity>("exercises").where("exercise_id", id);
 }
 async function getAllExercise(): Promise<ExerciseEntity[] | undefined> {
-  return dbUtil<ExerciseEntity>("exercises");
+  return db<ExerciseEntity>("exercises");
 }
 async function getAllExerciseByLessonId(id: number): Promise<ExerciseEntity[] | undefined> {
-  return dbUtil<ExerciseEntity>("exercises").where("lesson_id", id);
+  return db<ExerciseEntity>("exercises").where("lesson_id", id);
 }
 async function getAllExerciseByTestId(id: number): Promise<ExerciseEntity[] | undefined> {
-  return dbUtil<ExerciseEntity>("exercises").where("test_id", id);
+  return db<ExerciseEntity>("exercises").where("test_id", id);
 }
 
 async function getExerciseByType(type: string): Promise<ExerciseEntity[] | undefined> {
-  var result = await dbUtil<ExerciseEntity>("exercises").where("type", type);
+  var result = await db<ExerciseEntity>("exercises").where("type", type);
   return result.length > 0 ? result : undefined;
 }
 

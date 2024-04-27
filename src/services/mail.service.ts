@@ -3,7 +3,7 @@ import {TBaseDto, TPayload} from "../app.typing.js";
 import appConst from "../app.const.js";
 import jwt from "jsonwebtoken";
 import {TemplateEmailEntity} from "../entities/templateEmail.entity.js";
-import dbUtil from "../utils/db.util.js";
+import db from "../utils/db.util.js";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendEmailVerification(payload: TPayload, templateId: number): Promise<TBaseDto<undefined>> {
-  const emailTemplate = await dbUtil<TemplateEmailEntity>("email_templates").where("id", templateId).first();
+  const emailTemplate = await db<TemplateEmailEntity>("email_templates").where("id", templateId).first();
   if (!emailTemplate) {
     return {
       isSuccessful: false,
