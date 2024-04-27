@@ -121,8 +121,8 @@ function logout(req: Request, res: Response): any {
 }
 
 async function loginExternalParty(req: Request, res: Response): Promise<any> {
-  const { email, uid, token } = req.body;
-  if (!email || !uid || !token) {
+  const { email, uid, token, platform } = req.body;
+  if (!email || !uid || !token || !platform) {
     return res.status(400).json({
       message: "required information is empty",
       isSuccessful: false
@@ -134,7 +134,7 @@ async function loginExternalParty(req: Request, res: Response): Promise<any> {
     message,
     data,
     errorCode
-  } = await accountService.loginExternalParty(email, uid, token);
+  } = await accountService.loginExternalParty(email, uid, token, platform);
 
   if (isSuccessful) {
     cookieUtil.setCookie(res, data);
