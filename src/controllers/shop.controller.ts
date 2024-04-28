@@ -4,20 +4,6 @@ import userAccountService from "../services/userAccount.service.js";
 import skinService from "../services/skin.service.js";
 
 
-async function getAllSkins(req: Request, res: Response): Promise<any> {
-  try {
-    const data = await skinService.getAllSkins();
-
-    return res.status(200).json({
-      message: data ? `All skins are found` : `All skins are not found`,
-      data: data
-    });
-  } catch (error: any) {
-    return res.status(500).json({
-      message: error.message
-    });
-  }
-}
 
 async function getAll(req: Request, res: Response): Promise<any> {
   try {
@@ -94,7 +80,6 @@ async function purchaseSkin(req: Request, res: Response): Promise<any> {
 }
 
 export default {
-  getAllSkins,
   purchaseSkin,
   getAll
 }
