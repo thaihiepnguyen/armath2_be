@@ -1,7 +1,14 @@
 import db from "../util/db.js";
 import {PacketEntity} from "../entities/packet.entity.js";
+import {SkinEntity} from "../entities/skin.entity.js";
+import {FrameEntity} from "../entities/frame.entity.js";
+import {TestEntity} from "../entities/test.entity.js";
 
-
+type TShopResponse = {
+  skins: SkinEntity[],
+  frames: FrameEntity[],
+  tests: TestEntity[]
+}
 
 async function purchaseSkin(user_id: number, skin_id: number, price: number): Promise<void> {
   await Promise.all([
@@ -17,6 +24,21 @@ async function purchaseSkin(user_id: number, skin_id: number, price: number): Pr
   await db("payments").insert({user_id, packet_id});
 }
 
+async function getAll(): Promise<TShopResponse> {
+  const [skins, frames, tests] = await Promise.all([
+    db<SkinEntity>("skin").select('*'),
+    db<FrameEntity>("frames").select('*'),
+    db<TestEntity>("tests").select('*')
+  ]);
+
+  return {
+    skins,
+    frames,
+    tests
+  }
+}
+
 export default {
-  purchaseSkin
+  purchaseSkin,
+  getAll
 }

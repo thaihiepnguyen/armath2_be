@@ -19,6 +19,24 @@ async function getAllSkins(req: Request, res: Response): Promise<any> {
   }
 }
 
+async function getAll(req: Request, res: Response): Promise<any> {
+  try {
+    const data = await shopService.getAll();
+
+    return res.status(200).json({
+      isSuccessful: true,
+      message: "success",
+      data: data
+    });
+  } catch (error: any) {
+    console.log(error.message)
+    return {
+      isSuccessful: false,
+      message: error.message
+    };
+  }
+}
+
 async function purchaseSkin(req: Request, res: Response): Promise<any> {
   try {
     const { skinId } = req.body;
@@ -77,6 +95,7 @@ async function purchaseSkin(req: Request, res: Response): Promise<any> {
 
 export default {
   getAllSkins,
-  purchaseSkin
+  purchaseSkin,
+  getAll
 }
 
