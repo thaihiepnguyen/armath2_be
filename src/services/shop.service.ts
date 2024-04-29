@@ -26,9 +26,9 @@ async function purchaseSkin(user_id: number, skin_id: number, price: number): Pr
 
 async function getAll(): Promise<TShopResponse> {
   const [skins, frames, tests] = await Promise.all([
-    db<SkinEntity>("skin").select('*'),
-    db<FrameEntity>("frames").select('*'),
-    db<TestEntity>("tests").select('*')
+    db<SkinEntity>("skin").select('*').limit(6),
+    db<FrameEntity>("frames").select('*').limit(6),
+    db<TestEntity>("tests").select('*').limit(6)
   ]);
 
   return {
