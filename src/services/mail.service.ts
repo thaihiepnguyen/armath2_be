@@ -33,7 +33,7 @@ async function sendEmailVerification(payload: TPayload, templateId: number): Pro
     subject: "Verification Email",
     html: emailTemplate.content
       .replace("$user_name$", payload.uname)
-      .replace("$url$", `${process.env.SERVER_URL_LOCAL}:${process.env.PORT}`)
+      .replace("$url$", `${process.env.DOMAIN == 'local' ? process.env.SERVER_URL_LOCAL: process.env.SERVER_URL_DEV}`)
       .replace("$token$", accessToken),
   });
   return {

@@ -1,5 +1,6 @@
 import {Request, Response} from 'express';
 import userService from "../services/userLoginData.service.js";
+import userAccountService from '../services/userAccount.service.js';
 import numberUtil from "../util/number.util.js";
 
 async function getUserById(req: Request, res: Response): Promise<any> {
@@ -33,6 +34,31 @@ async function getUserById(req: Request, res: Response): Promise<any> {
   });
 }
 
+async function getMe(req: Request, res: Response): Promise<any> {
+  const { metadata } = req.body;
+  if (!metadata) {
+    res.status(500).json({
+      isSuccessful: false,
+      message: 'Interal Error',
+    });
+  }
+  const uid = metadata.uid;
+  const user = await userAccountService.getUserById(uid);
+  if (!user) {
+    res.status(500).json({
+      isSuccessful: false,
+      message: 'Interal Error',
+    });
+  }
+
+  return res.status(200).json({
+    isSuccessful: true,
+    message: 'success',
+    data: user
+  });
+}
+
 export default {
-  getUserById
+  getUserById,
+  getMe
 }
