@@ -5,6 +5,8 @@ import userRoute from "./routes/user.route.js";
 import cookieParser from "cookie-parser";
 import lessonRoute from "./routes/lesson.route.js";
 import exerciseRoute from "./routes/exercise.route.js";
+import questionResultRoute from "./routes/questionResult.route.js";
+import testResultRoute from "./routes/testResult.route.js";
 import morgan from "morgan";
 import achievementRoute from "./routes/achievement.route.js";
 import shopRoute from "./routes/shop.route.js";
@@ -27,6 +29,8 @@ app.get("/health", (req: Request, res: Response) => {
 });
 app.use("/lessons", lessonRoute);
 app.use("/exercises", exerciseRoute);
+app.use("/question_result", questionResultRoute);
+app.use("/test_result", testResultRoute);
 app.use("/achievements", achievementRoute);
 app.use("/shop", shopRoute);
 
