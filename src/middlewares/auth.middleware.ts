@@ -6,6 +6,7 @@ function authenticate(req: Request, res: Response, next: NextFunction) {
   const act = req.headers.authorization?.split(' ')[1];
   const cookieAct = req.cookies['act'];
   if (!act && !cookieAct) {
+    console.log("Unauthorized")
     return res.status(401).json({
         message: "Unauthorized"
     });
@@ -18,6 +19,7 @@ function authenticate(req: Request, res: Response, next: NextFunction) {
     } as TMetadata;
     next();
   } catch (error: JWTError | any) {
+    console.log(error.message);
     return res.status(401).json({
       message: error.message
     });

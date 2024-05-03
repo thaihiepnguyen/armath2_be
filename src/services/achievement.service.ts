@@ -6,6 +6,7 @@ type Achievement = {
   id: number;
   name: string;
   price: number;
+  image_url: string,
   status_type: number;
 }
 
@@ -17,6 +18,7 @@ async function getAchievementsByUserId(userId: number): Promise<Achievement[] | 
         a.achievement_id AS id,
         a.name,
         a.price,
+        a.image_url,
         CASE
             WHEN ua.is_claimed IS NULL THEN 0
             WHEN ua.is_claimed IS FALSE THEN 1
