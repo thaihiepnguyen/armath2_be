@@ -10,6 +10,8 @@ import testResultRoute from "./routes/testResult.route.js";
 import morgan from "morgan";
 import achievementRoute from "./routes/achievement.route.js";
 import shopRoute from "./routes/shop.route.js";
+import testRoute from "./routes/test.route.js";
+import testPurchaseRoute from "./routes/testPurchase.route.js"; 
 
 const app: Express = express();
 
@@ -32,6 +34,8 @@ app.use("/exercises", exerciseRoute);
 app.use("/question_result", questionResultRoute);
 app.use("/test_result", testResultRoute);
 app.use("/achievements", achievementRoute);
+app.use("/test",testRoute);
+app.use("/test_purchase",testPurchaseRoute);
 app.use("/shop", shopRoute);
 
 const port = 3000;
