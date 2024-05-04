@@ -58,7 +58,32 @@ async function getMe(req: Request, res: Response): Promise<any> {
   });
 }
 
+async function getPersonalByUserId(req: Request, res: Response): Promise<any> {
+    const { metadata } = req.body;
+  if (!metadata) {
+    res.status(500).json({
+      isSuccessful: false,
+      message: 'Interal Error',
+    });
+  }
+  const uid = metadata.uid;
+  const user = await userAccountService.getPersonalByUserId(uid);
+  if (!user) {
+    res.status(500).json({
+      isSuccessful: false,
+      message: 'Interal Error',
+    });
+  }
+
+  return res.status(200).json({
+    isSuccessful: true,
+    message: 'success',
+    data: user
+  });
+}
+
 export default {
   getUserById,
-  getMe
+  getMe,
+  getPersonalByUserId
 }
