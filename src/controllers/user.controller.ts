@@ -128,9 +128,43 @@ async function updatePersonal(req: Request, res: Response): Promise<any> {
   }
 }
 
+async function updateUsername(req: Request, res: Response): Promise<any> {
+  try {
+    const { metadata } = req.body;
+    const uid = metadata?.uid;
+    if (!uid) {
+      return res.status(400).json({
+        isSuccessful: false,
+        message: "userId is required"
+      });
+    }
+
+    const { username } = req.body;
+    if (!username) {
+      return res.status(400).json({
+        isSuccessful: false,
+        message: `username is required`
+      });
+    }
+
+    await userAccountService.updateUsername(uid, username);
+    return res.status(200).json({
+      isSuccessful: true,
+      message: "success"
+    });
+
+  } catch (e: any) {
+    return res.status(500).json({
+      isSuccessful: false,
+      message: e.message
+    });
+  }
+}
+
 export default {
   getUserById,
   getMe,
   getPersonalByUserId,
-  updatePersonal
+  updatePersonal,
+  updateUsername
 }

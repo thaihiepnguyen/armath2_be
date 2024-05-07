@@ -81,11 +81,16 @@ async function updateFrame(user_id: number, frame_id: number): Promise<void> {
   await db<UserAccountEntity>("user_account").where("user_id", user_id).update({ frame_id });
 }
 
+async function updateUsername(user_id: number, name: string): Promise<void> {
+  await db<UserAccountEntity>("user_account").where("user_id", user_id).update({ name });
+}
+
 export default {
   getUserByEmail,
   getUserById,
   getCoinByUserId,
   getPersonalByUserId,
   updateSkin,
-  updateFrame
+  updateFrame,
+  updateUsername
 }
