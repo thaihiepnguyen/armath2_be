@@ -10,5 +10,7 @@ const db = knex({
     database: process.env.DB_NAME,
     ssl:true,
   },
+}).on('connection-error', function(error) {
+  console.log('Error connecting to database', error);
 });
 export default db;
