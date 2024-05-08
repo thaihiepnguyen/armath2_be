@@ -106,10 +106,47 @@ async function getExercisesByTestId(req: Request, res: Response): Promise<any> {
     });
   }
 }
+
+/**
+ * Retrieves random exercises by their chapter ID.
+ * @param req - The request object.
+ * @param res - The response object.
+ * @returns A Promise that resolves to the exercise data.
+ */
+async function getExercisesByChapterId(req: Request, res: Response): Promise<any> {
+  try {
+    const { chapterId } = req.params;
+    const chapterIdNumber = Number(chapterId);
+    if (!numberUtil.isNumberString(chapterId) ){
+      throw new Error('chapterId must be a number');
+    }
+    let exercises = await exerciseService.getExerciseByChapterId(chapterIdNumber);
+    
+    if(!exercises || exercises.length === 0){
+      return res.status(404).json({
+        message: `Exercises are not found`,
+        
+      });
+    }
+
+    exercises = exercises.filter(() => Math.random() < 0.5).slice(0, 20);
+
+    return res.status(200).json({
+      message: exercises ? `Exercises with chapter id:${chapterId} are found` : `Exercises with chapter id:${chapterId} are not found`,
+      data: exercises,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: `Internal error`
+    });
+  }
+}
 export default {
     getExerciseById,
     getAllExercise,
     getExercisesByLessonId,
     getExercisesByTestId,
-    getExerciseByType
+    getExerciseByType,
+    getExercisesByChapterId
 }

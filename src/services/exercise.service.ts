@@ -20,12 +20,18 @@ async function getExerciseByType(type: string): Promise<ExerciseEntity[] | undef
   return result.length > 0 ? result : undefined;
 }
 
-
+async function getExerciseByChapterId(id: number): Promise<ExerciseEntity[] | undefined> {
+  return db<ExerciseEntity>("exercises")
+    .join("lessons", "exercises.lesson_id", "lessons.lesson_id")
+    .select("exercises.*")
+    .where("lessons.chapter_id", id);
+}
 
 export default {
     getExerciseById,
     getAllExercise,
     getAllExerciseByLessonId,
     getAllExerciseByTestId,
-    getExerciseByType
+    getExerciseByType,
+    getExerciseByChapterId
 }
