@@ -8,6 +8,10 @@ async function getUserByExternalUID(uid: string): Promise<UserLoginDataExternalE
 async function getUserByEmail(email: string): Promise<UserLoginDataExternalEntity | undefined> {
     return db<UserLoginDataExternalEntity>("user_login_data_external").where("email", email).first();
 }
+
+async function getUserByEmailAndPlatform(email: string, platform: string): Promise<UserLoginDataExternalEntity | undefined> {
+    return db<UserLoginDataExternalEntity>("user_login_data_external").whereRaw(`(email = '${email}' AND platform = '${platform}')`).first();
+}
   
 async function getUserById(user_id: number): Promise<UserLoginDataExternalEntity | undefined> {
     return db<UserLoginDataExternalEntity>("user_login_data_external").where("user_id", user_id).first();
@@ -21,5 +25,6 @@ export default {
     getUserByExternalUID,
     getUserByEmail,
     getUserById,
+    getUserByEmailAndPlatform,
     // updateTokenByEmail,
 }

@@ -12,6 +12,7 @@ import userLoginDataExternalService from "./userLoginDataExternal.service.js";
 import userAccountService from "./userAccount.service.js";
 import { UserAccountEntity } from "../entities/userAccount.entity.js";
 import { UserLoginDataExternalEntity } from "../entities/userLoginDataExternal.entity.js";
+import { log } from "console";
 
 async function loginByEmail(email: string, password: string): Promise<TBaseDto<any>> {
   const user: UserLoginDataEntity | undefined = await userLoginDataService.getUserByEmail(email);
@@ -74,8 +75,8 @@ async function loginByEmail(email: string, password: string): Promise<TBaseDto<a
   }
 }
 
-async function loginExternalParty(email: string, uid: string, token: string): Promise<TBaseDto<any>> {
-  const user: UserLoginDataExternalEntity | undefined = await userLoginDataExternalService.getUserByEmail(email);
+async function loginExternalParty(email: string, uid: string, token: string, platform: string): Promise<TBaseDto<any>> {
+  const user: UserLoginDataExternalEntity | undefined = await userLoginDataExternalService.getUserByEmailAndPlatform(email,platform);
   if (!user) {
     const userAccount: UserAccountEntity | undefined = await userAccountService.getUserByEmail(email);
     var id;
@@ -103,6 +104,7 @@ async function loginExternalParty(email: string, uid: string, token: string): Pr
         external_uid: uid,
         external_token: token,
         email,
+        platform,
       });
     } catch (error) {
       return {
@@ -114,7 +116,8 @@ async function loginExternalParty(email: string, uid: string, token: string): Pr
   }
   else{
     try {
-      const updateUserExternal = await db<UserLoginDataExternalEntity>("user_login_data_external").where("email", email).update("external_token",token);
+      console.log("get here");
+      const updateUserExternal = await db<UserLoginDataExternalEntity>("user_login_data_external").whereRaw(`(email = '${email}' AND platform = '${platform}')`).update("external_token",token);
     } catch (error) {
       return {
         isSuccessful: false,
