@@ -180,6 +180,7 @@ async function getAll(user_id: number): Promise<TShopResponse> {
     FROM skin s
     LEFT JOIN skin_purchases sp ON s.skin_id = sp.skin_id AND sp.user_id = ?
     ORDER BY is_purchased asc
+    WHERE s.price > 0
     LIMIT ?;
   `
 
@@ -192,6 +193,7 @@ async function getAll(user_id: number): Promise<TShopResponse> {
     FROM frames f
     LEFT JOIN frame_purchases fp ON f.frame_id = fp.frame_id AND fp.user_id = ?
     ORDER BY is_purchased asc
+    WHERE f.price > 0
     LIMIT ?;
   `
 
@@ -204,6 +206,7 @@ async function getAll(user_id: number): Promise<TShopResponse> {
     FROM tests t
     LEFT JOIN test_purchases tp ON t.test_id = tp.test_id AND tp.user_id = ?
     ORDER BY is_purchased asc
+    WHERE t.price > 0
     LIMIT ?;
   `
 
