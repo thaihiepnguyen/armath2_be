@@ -1,4 +1,5 @@
 import {ImageEntity} from "../entities/image.entity.js";
+import imageService from "../services/image.service.js";
 import db from "../util/db.js";
 import {Request, Response} from "express";
 
@@ -10,28 +11,33 @@ async function uploadImage(req: Request, res: Response): Promise<any> {
       isSuccessful: false
     })
   }
-
-  db<ImageEntity>('images').insert({
-    data: req.file.buffer,
-    name: req.file.originalname,
-    size: req.file.size,
-    type: req.file.mimetype
-  }).then(() => {
-    res.status(200).send({
-      message: "Image uploaded successfully",
-      isSuccessful: true
-    })
-  }).catch((err: any) => {
-    res.status(500).send({
-      message: "Error: " + err.message,
+  try {
+    await imageService.uploadSingleImage(req.file);
+  } catch (e: any) {
+    console.log(e.message);
+    res.status(400).send({
+      message: e.message,
       isSuccessful: false
-    })
-  })
+    });
+  }
+
+  res.status(200).send({
+    message: "Image uploaded successfully",
+    isSuccessful: true
+  });
 }
 
 async function downloadImage(req: Request, res: Response): Promise<any> {
   const { id } = req.params;
-  const image = await db<ImageEntity>('images').where('image_id', id).first();
+
+  if (!id) {
+    return res.status(404).send({
+      message: "id is required",
+      isSuccessful: false
+    })
+  }
+
+  const image = await imageService.getImageById(+id);
   if (!image) {
     return res.status(404).send({
       message: "Image not found",
@@ -44,7 +50,34 @@ async function downloadImage(req: Request, res: Response): Promise<any> {
   res.send(image.data);
 }
 
+async function uploadMultipleImages(req: Request, res: Response) {
+  if(!req.files) {
+    return res.status(400).send({
+      message: "Error: No files found",
+      isSuccessful: false
+    })
+  }
+
+  const files = JSON.parse(JSON.stringify(req.files));
+
+  try {
+    await imageService.uploadMultipleImages(files);
+  } catch (e: any) {
+    console.log(e.message);
+    res.status(400).send({
+      message: e.message,
+      isSuccessful: false
+    });
+  }
+
+  res.status(200).send({
+    message: "Images uploaded successfully",
+    isSuccessful: true
+  });
+}
+
 export default {
   uploadImage,
-  downloadImage
+  downloadImage,
+  uploadMultipleImages
 }
