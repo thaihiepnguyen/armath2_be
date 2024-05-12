@@ -7,4 +7,6 @@ export interface UserAccountEntity {
     coin: number;
     created_at: Date;
     updated_at: Date;
+    skin_id: number | null;
+    frame_id: number | null;
   }
