@@ -2,7 +2,7 @@ import { ImageEntity } from "../entities/image.entity.js"
 import db from "../util/db.js"
 
 
-async function uploadSingleImage(file: Express.Multer.File) {
+async function uploadSingleImage(file: Express.Multer.File): Promise<void> {
 	await db<ImageEntity>('images').insert({
 		data: file.buffer,
 		name: file.originalname,
@@ -11,11 +11,11 @@ async function uploadSingleImage(file: Express.Multer.File) {
 	})
 }
 
-async function getImageById(id: number) {
+async function getImageById(id: number): Promise<ImageEntity | undefined> {
 	return await db<ImageEntity>('images').where('image_id', id).first();
 }
 
-async function uploadMultipleImages(files: Express.Multer.File[]) {
+async function uploadMultipleImages(files: Express.Multer.File[]): Promise<void> {
 	await db<ImageEntity>('images').insert(files.map(item => {
 		return {
 			data: item.buffer,
