@@ -58,8 +58,7 @@ async function uploadMultipleImages(req: Request, res: Response) {
     })
   }
 
-  const files = JSON.parse(JSON.stringify(req.files));
-
+  const files = req.files as Express.Multer.File[];
   try {
     await imageService.uploadMultipleImages(files);
   } catch (e: any) {
