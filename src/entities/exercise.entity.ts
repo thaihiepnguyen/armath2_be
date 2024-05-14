@@ -6,5 +6,5 @@ export interface ExerciseEntity {
   right_answer: string;
   type: string;
   test_id: number;
-  image_url: string;
+  image_id: number;
 }
