@@ -11,7 +11,8 @@ import morgan from "morgan";
 import achievementRoute from "./routes/achievement.route.js";
 import shopRoute from "./routes/shop.route.js";
 import testRoute from "./routes/test.route.js";
-import testPurchaseRoute from "./routes/testPurchase.route.js"; 
+import testPurchaseRoute from "./routes/testPurchase.route.js";
+import imageRoute from "./routes/image.route.js";
 
 const app: Express = express();
 
@@ -26,9 +27,6 @@ app.use(express.urlencoded({
 
 app.use("/account", accountRoute);
 app.use("/users", userRoute);
-app.get("/health", (req: Request, res: Response) => {
-  res.sendStatus(200)
-});
 app.use("/lessons", lessonRoute);
 app.use("/exercises", exerciseRoute);
 app.use("/question_result", questionResultRoute);
@@ -37,6 +35,11 @@ app.use("/achievements", achievementRoute);
 app.use("/test",testRoute);
 app.use("/test_purchase",testPurchaseRoute);
 app.use("/shop", shopRoute);
+app.use("/images", imageRoute);
+app.get("/health", (req: Request, res: Response) => {
+  res.sendStatus(200)
+});
+
 
 const port = 3000;
 
