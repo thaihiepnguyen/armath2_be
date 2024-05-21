@@ -71,5 +71,6 @@ export default {
     getById,
     getQuestionResultByTestResultId,
     addQuestionResult,
+    
 
 }

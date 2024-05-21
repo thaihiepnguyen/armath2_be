@@ -7,5 +7,6 @@ export default {
   },
   TEMPLATE_EMAIL: {
     VERIFICATION: 50
-  }
+  },
+  DEFAULT_SKIN_ID: 12
 }

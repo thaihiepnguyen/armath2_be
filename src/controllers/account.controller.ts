@@ -117,7 +117,8 @@ function refreshToken(req: Request, res: Response): any {
   const { rft } = req.cookies;
   if (!rft) {
     return res.status(400).json({
-      message: "refresh token is required"
+      message: "refresh token is required",
+      isSuccessful: false
     });
   }
 
@@ -128,11 +129,19 @@ function refreshToken(req: Request, res: Response): any {
     data,
   } = accountService.refreshToken(rft);
 
+  if (!data) {
+    return res.status(errorCode).json({
+      message,
+      isSuccessful: false
+    });
+  }
+
   if (isSuccessful && errorCode === 200) {
-    cookieUtil.setCookie(res, data!!);
+    cookieUtil.setCookie(res, data);
   }
   return res.status(errorCode).json({
-    message
+    message,
+    isSuccessful: true,
   });
 }
 

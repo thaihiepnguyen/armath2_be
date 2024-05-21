@@ -12,6 +12,7 @@ import userLoginDataExternalService from "./userLoginDataExternal.service.js";
 import userAccountService from "./userAccount.service.js";
 import { UserAccountEntity } from "../entities/userAccount.entity.js";
 import { UserLoginDataExternalEntity } from "../entities/userLoginDataExternal.entity.js";
+import AppConst from "../app.const.js";
 
 async function loginByEmail(email: string, password: string): Promise<TBaseDto<any>> {
   const user: UserLoginDataEntity | undefined = await userLoginDataService.getUserByEmail(email);
@@ -78,11 +79,12 @@ async function loginExternalParty(email: string, uid: string, token: string, pla
   const user: UserLoginDataExternalEntity | undefined = await userLoginDataExternalService.getUserByEmail(email);
   if (!user) {
     const userAccount: UserAccountEntity | undefined = await userAccountService.getUserByEmail(email);
-    var id;
+    let id;
     if(!userAccount){
       try {
         const newUserAccount = await db<UserAccountEntity>("user_account").insert({
           email,
+          skin_id: AppConst.DEFAULT_SKIN_ID || 12,
           name: generateUsername("", 3)
         }).returning('user_id');
         id = newUserAccount[0].user_id;
@@ -174,12 +176,13 @@ async function registerByEmail(email: string, password: string): Promise<TBaseDt
   password = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUNDS as string) || 10);
   try {
     const userAccount: UserAccountEntity | undefined = await userAccountService.getUserByEmail(email);
-    var newUserAccount;
-    var id;
+    let newUserAccount;
+    let id;
     if(!userAccount){
       try {
         newUserAccount = await db<UserAccountEntity>("user_account").insert({
           email,
+          skin_id: AppConst.DEFAULT_SKIN_ID || 12,
           name: generateUsername("", 3)
         }).returning('user_id');
         id = newUserAccount[0].user_id;

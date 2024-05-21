@@ -6,4 +6,5 @@ const router: Router = Router();
 router.get("/testResult/:testResultId",  questionResultController.getQuestionResultByTestResultId);
 router.post("/",  questionResultController.addQuestionResult);
 router.get("/:id",  questionResultController.getById);
+
 export default router;

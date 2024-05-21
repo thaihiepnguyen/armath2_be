@@ -4,6 +4,6 @@ export interface TestResultEntity {
      test_id:number,
      completed_time: string,
      point: string,
-     date: Date,
+     date: string,
 
   }

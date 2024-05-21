@@ -13,8 +13,12 @@ async function addQuestionResult(questionResult: QuestionResultEntity): Promise<
     var response= await db<QuestionResultEntity>("question_result").insert(questionResult).returning("*");
     return response[0];
   }
+
+  
+
 export default {
     getQuestionResultByTestResultId,
     getQuestionResultById,
-    addQuestionResult
+    addQuestionResult,
+    
 }
