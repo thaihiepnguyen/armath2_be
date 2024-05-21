@@ -74,7 +74,7 @@ async function loginByEmail(email: string, password: string): Promise<TBaseDto<a
   }
 }
 
-async function loginExternalParty(email: string, uid: string, token: string): Promise<TBaseDto<any>> {
+async function loginExternalParty(email: string, uid: string, token: string, platform: string): Promise<TBaseDto<any>> {
   const user: UserLoginDataExternalEntity | undefined = await userLoginDataExternalService.getUserByEmail(email);
   if (!user) {
     const userAccount: UserAccountEntity | undefined = await userAccountService.getUserByEmail(email);
@@ -103,8 +103,11 @@ async function loginExternalParty(email: string, uid: string, token: string): Pr
         external_uid: uid,
         external_token: token,
         email,
+        platform,
       });
     } catch (error) {
+      console.log("get here");
+      
       return {
         isSuccessful: false,
         message: "Internal Error",
@@ -226,6 +229,70 @@ async function registerByEmail(email: string, password: string): Promise<TBaseDt
   }
 }
 
+async function registerByPhone(phone: string, password: string): Promise<TBaseDto<undefined>> {
+  const user: UserLoginDataEntity | undefined = await userLoginDataService.getUserByEmail(phone);
+  if (user) {
+    return {
+      isSuccessful: false,
+      message: "phone already exist",
+      errorCode: 400
+    }
+  }
+
+  password = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUNDS as string) || 10);
+  try {
+    const userAccount: UserAccountEntity | undefined = await userAccountService.getUserByEmail(phone);
+    var newUserAccount;
+    var id;
+    if(!userAccount){
+      try {
+        newUserAccount = await db<UserAccountEntity>("user_account").insert({
+          email: phone,
+          name: generateUsername("", 3)
+        }).returning('user_id');
+        id = newUserAccount[0].user_id;
+      } catch (error) {
+        return {
+          isSuccessful: false,
+          message: "Internal Error",
+          errorCode: 500
+        }
+      }
+    }
+    else id = userAccount.user_id;
+    const newUser = await db<UserLoginDataEntity>("user_login_data").insert({
+      user_id: id,
+      email: phone,
+      password,
+    });
+
+    const user = await userAccountService.getUserById(id);
+    if (!user) {
+      return {
+        isSuccessful: false,
+        message: "Internal Error",
+        errorCode: 500
+      }
+    }
+    const payload: TPayload = {
+      uid: user.user_id,
+      email: user.email,
+      uname: user.name
+    }
+    return {
+      isSuccessful: true,
+      message: "register success",
+      errorCode: 200
+    }
+  } catch (error) {
+    return {
+      message: "register failed",
+      isSuccessful: false,
+      errorCode: 500
+    }
+  }
+}
+
 async function verifyEmail(token: string): Promise<TBaseDto<undefined>> {
   let decoded: TPayload;
   try {
@@ -262,6 +329,35 @@ async function verifyEmail(token: string): Promise<TBaseDto<undefined>> {
   return {
     isSuccessful: true,
     message: "email verified",
+    errorCode: 200
+  }
+}
+
+async function verifyPhoneNumber(phoneNumber: string): Promise<TBaseDto<undefined>> {
+  const user = await userLoginDataService.getUserByEmail(phoneNumber);
+  if (!user) {
+    return {
+      isSuccessful: false,
+      message: "user not found",
+      errorCode: 404
+    }
+  }
+
+  if (user.is_valid) {
+    return {
+      isSuccessful: true,
+      message: "phone already verified",
+      errorCode: 200
+    }
+  }
+
+  await db<UserLoginDataEntity>("user_login_data").where("user_id", user.user_id).update({
+    is_valid: true
+  });
+
+  return {
+    isSuccessful: true,
+    message: "phone verified",
     errorCode: 200
   }
 }
@@ -338,8 +434,10 @@ async function resendVerificationEmail(email: string): Promise<TBaseDto<undefine
 export default {
   loginByEmail,
   registerByEmail,
+  registerByPhone,
   verifyEmail,
   refreshToken,
   resendVerificationEmail,
   loginExternalParty,
+  verifyPhoneNumber,
 }
