@@ -25,21 +25,21 @@ async function getCoinByUserId(user_id: number): Promise<number | undefined> {
 
 async function getPersonalByUserId(user_id: number): Promise<TPersonalResponse | undefined> {
   const sql = `
-    SELECT 
-    a.name as username,
-    (SELECT cast(count(user_id) as INTEGER) FROM user_achievements where user_id = ? and is_claimed = TRUE) as totalAchievement,
-    0 as totalNote,
-    c.image_url as skinUrl,
-    d.image_url as frameUrl
-    FROM user_account a
-    LEFT JOIN skin c ON c.skin_id = a.skin_id
-    LEFT JOIN frames d ON d.frame_id = a.frame_id
-    WHERE user_id = ?;
+      SELECT
+          a.name as username,
+          (SELECT cast(count(user_id) as INTEGER) FROM user_achievements where user_id = ? and is_claimed = TRUE) as totalAchievement,
+          0 as totalNote,
+          c.image_id as imageSkinId,
+          d.image_id as imageFrameId
+      FROM user_account a
+       LEFT JOIN skin c ON c.skin_id = a.skin_id
+       LEFT JOIN frames d ON d.frame_id = a.frame_id
+      WHERE user_id = ?;
   `;
   const sqlSkinsPurchased = `
      SELECT 
           s.skin_id as skinId,
-          s.image_url as imageUrl
+          s.image_id as imageSkinId
      FROM user_account ua
      LEFT JOIN skin_purchases sp ON ua.user_id = sp.user_id
      LEFT JOIN skin s ON sp.skin_id = s.skin_id
@@ -49,7 +49,7 @@ async function getPersonalByUserId(user_id: number): Promise<TPersonalResponse |
   const sqlFramesPurchased = `
       SELECT 
             f.frame_id as frameId,
-            f.image_url as imageUrl
+            f.image_id as imageFrameId
       FROM user_account ua
       LEFT JOIN frame_purchases fp ON ua.user_id = fp.user_id
       LEFT JOIN frames f ON fp.frame_id = f.frame_id
