@@ -1,13 +1,24 @@
 import { UserAccountEntity } from "../entities/userAccount.entity.js";
 import db from "../util/db.js";
 
+interface TSkinsPurchased {
+  skinId: number
+  imageSkinId: number
+}
+
+interface TFramesPurchased {
+  frameId: number
+  imageFrameId: number
+}
 
 interface TPersonalResponse {
   username: string
   totalAchievement: number
   totalNote: number
-  skinUrl: string
-  frameUrl: string
+  imageSkinId: number
+  imageFrameId: number
+  skinsPurchased: TSkinsPurchased[]
+  framesPurchased: TFramesPurchased[]
 }
 
 async function getUserByEmail(email: string): Promise<UserAccountEntity | undefined> {
@@ -70,7 +81,7 @@ async function getPersonalByUserId(user_id: number): Promise<TPersonalResponse |
     ...rawData,
     skinsPurchased,
     framesPurchased
-  };
+  } as TPersonalResponse;
 }
 
 async function updateSkin(user_id: number, skin_id: number): Promise<void> {
