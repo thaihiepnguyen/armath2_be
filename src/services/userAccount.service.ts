@@ -54,6 +54,13 @@ async function getPersonalByUserId(user_id: number): Promise<TPersonalResponse |
      FROM user_account ua
      LEFT JOIN skin_purchases sp ON ua.user_id = sp.user_id
      LEFT JOIN skin s ON sp.skin_id = s.skin_id
+     WHERE ua.user_id = ?
+     UNION
+     SELECT
+         s.skin_id as skinId,
+         s.image_id as imageSkinId
+     FROM user_account ua
+     JOIN skin s ON ua.skin_id = s.skin_id
      WHERE ua.user_id = ?;
   `;
 
@@ -64,13 +71,20 @@ async function getPersonalByUserId(user_id: number): Promise<TPersonalResponse |
       FROM user_account ua
       LEFT JOIN frame_purchases fp ON ua.user_id = fp.user_id
       LEFT JOIN frames f ON fp.frame_id = f.frame_id
+      WHERE ua.user_id = ?
+      UNION
+      SELECT
+          f.frame_id as frameId,
+          f.image_id as imageFrameId
+      FROM user_account ua
+       JOIN frames f ON ua.frame_id = f.frame_id
       WHERE ua.user_id = ?;
     `;
 
   const [rawData, skinsPurchased, framesPurchased] = await Promise.all([
     db.raw(sql, [user_id, user_id]).then(data => data["rows"]?.[0]),
-    db.raw(sqlSkinsPurchased, [user_id]).then(data => data["rows"]),
-    db.raw(sqlFramesPurchased, [user_id]).then(data => data["rows"])
+    db.raw(sqlSkinsPurchased, [user_id, user_id]).then(data => data["rows"]),
+    db.raw(sqlFramesPurchased, [user_id, user_id]).then(data => data["rows"])
   ]);
 
   if (!rawData) {
