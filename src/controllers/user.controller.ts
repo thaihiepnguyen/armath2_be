@@ -36,14 +36,15 @@ async function getUserById(req: Request, res: Response): Promise<any> {
 
 async function getMe(req: Request, res: Response): Promise<any> {
   const { metadata } = req.body;
-  if (!metadata) {
+  const { platform_id } = req.params;
+  if (!metadata || !platform_id) {
     return res.status(500).json({
       isSuccessful: false,
       message: 'Interal Error',
     });
   }
   const uid = metadata.uid;
-  const user = await userAccountService.getUserById(uid);
+  const user = await userAccountService.getMe(uid, +platform_id);
   if (!user) {
     return res.status(500).json({
       isSuccessful: false,
