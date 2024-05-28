@@ -33,7 +33,7 @@ async function getUserById(user_id: number): Promise<UserAccountEntity | undefin
 async function getMe(user_id: number, platform_id: number): Promise<UserAccountEntity | undefined> {
   return db<UserAccountEntity>()
   .from('user_account')
-  .select('user_account.*', 'three_dimensions.id as threeDimensionId')
+  .select('user_account.*', 'three_dimensions.id as three_dimension_id')
   .leftJoin('skin_3ds', 'user_account.skin_id', 'skin_3ds.skin_id')
   .leftJoin('three_dimensions', (join) => {
     join.on('three_dimensions.id', '=', 'skin_3ds.three_dimension_id')
