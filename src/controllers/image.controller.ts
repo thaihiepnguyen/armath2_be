@@ -45,9 +45,17 @@ async function downloadImage(req: Request, res: Response): Promise<any> {
     })
   }
 
-  res.set('Content-Type', image.type);
-  res.set('Content-Disposition', `attachment; filename=${image.name}`);
-  res.send(image.data);
+  try {
+    res.set('Content-Type', image.type);
+    res.set('Content-Disposition', `attachment; filename=${image.name}`);
+    res.send(image.data);
+  } catch (e: any) {
+    console.log(e.message);
+    res.status(400).send({
+      message: e.message,
+      isSuccessful: false
+    });
+  }
 }
 
 async function uploadMultipleImages(req: Request, res: Response) {
