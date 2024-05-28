@@ -6,4 +6,5 @@ export interface ThreeDimensionEntity {
   data: Buffer;
   size: number;
   type: string;
+  platform_id: number;
 }

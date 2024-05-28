@@ -17,6 +17,7 @@ interface TPersonalResponse {
   totalNote: number
   imageSkinId: number
   imageFrameId: number
+  threeDimensionId: number | undefined
   skinsPurchased: TSkinsPurchased[]
   framesPurchased: TFramesPurchased[]
 }
@@ -34,18 +35,22 @@ async function getCoinByUserId(user_id: number): Promise<number | undefined> {
   return data?.coin;
 }
 
-async function getPersonalByUserId(user_id: number): Promise<TPersonalResponse | undefined> {
+async function getPersonalByUserId(user_id: number, platform_id: number = 1): Promise<TPersonalResponse | undefined> {
   const sql = `
       SELECT
           a.name as username,
           (SELECT cast(count(user_id) as INTEGER) FROM user_achievements where user_id = ? and is_claimed = TRUE) as totalAchievement,
           0 as totalNote,
           c.image_id as imageSkinId,
-          d.image_id as imageFrameId
+          f.image_id as imageFrameId,
+          e.id as threeDimensionId
       FROM user_account a
-       LEFT JOIN skin c ON c.skin_id = a.skin_id
-       LEFT JOIN frames d ON d.frame_id = a.frame_id
-      WHERE user_id = ?;
+         LEFT JOIN skin c ON c.skin_id = a.skin_id
+         LEFT JOIN skin_3ds d ON d.skin_id = c.skin_id
+         LEFT JOIN three_dimensions e ON e.id = d.three_dimension_id AND e.platform_id = ?
+         LEFT JOIN frames f ON f.frame_id = a.frame_id
+      WHERE a.user_id = ?
+      LIMIT 1;
   `;
   const sqlSkinsPurchased = `
      SELECT 
@@ -82,7 +87,7 @@ async function getPersonalByUserId(user_id: number): Promise<TPersonalResponse |
     `;
 
   const [rawData, skinsPurchased, framesPurchased] = await Promise.all([
-    db.raw(sql, [user_id, user_id]).then(data => data["rows"]?.[0]),
+    db.raw(sql, [user_id, platform_id, user_id]).then(data => data["rows"]?.[0]),
     db.raw(sqlSkinsPurchased, [user_id, user_id]).then(data => data["rows"]),
     db.raw(sqlFramesPurchased, [user_id, user_id]).then(data => data["rows"])
   ]);

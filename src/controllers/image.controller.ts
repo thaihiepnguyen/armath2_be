@@ -15,13 +15,13 @@ async function uploadImage(req: Request, res: Response): Promise<any> {
     await imageService.uploadSingleImage(req.file);
   } catch (e: any) {
     console.log(e.message);
-    res.status(400).send({
+    return res.status(400).send({
       message: e.message,
       isSuccessful: false
     });
   }
 
-  res.status(200).send({
+  return res.status(200).send({
     message: "Image uploaded successfully",
     isSuccessful: true
   });
@@ -51,7 +51,7 @@ async function downloadImage(req: Request, res: Response): Promise<any> {
     res.send(image.data);
   } catch (e: any) {
     console.log(e.message);
-    res.status(400).send({
+    return res.status(400).send({
       message: e.message,
       isSuccessful: false
     });
@@ -71,13 +71,13 @@ async function uploadMultipleImages(req: Request, res: Response) {
     await imageService.uploadMultipleImages(files);
   } catch (e: any) {
     console.log(e.message);
-    res.status(400).send({
+    return res.status(400).send({
       message: e.message,
       isSuccessful: false
     });
   }
 
-  res.status(200).send({
+  return res.status(200).send({
     message: "Images uploaded successfully",
     isSuccessful: true
   });

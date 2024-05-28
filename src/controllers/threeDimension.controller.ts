@@ -2,46 +2,46 @@ import {Request, Response} from "express";
 import threeDimensionService from "../services/threeDimension.service.js";
 
 async function upload3d(req: Request, res: Response): Promise<any> {
-  if (!req.file) {
+  if (!req.file || !req.params.skinId) {
     return res.status(400).send({
-      message: "Error: No file found",
+      message: "Error: No file found or No skinId found",
       isSuccessful: false
     })
   }
   try {
-    await threeDimensionService.uploadSingle3d(req.file);
+    await threeDimensionService.uploadSingle3d(req.file, +req.params.skinId);
   } catch (e: any) {
     console.log(e.message);
-    res.status(400).send({
+    return res.status(400).send({
       message: e.message,
       isSuccessful: false
     });
   }
-  res.status(200).send({
+  return res.status(200).send({
     message: "3d uploaded successfully",
     isSuccessful: true
   });
 }
 
 async function uploadMultiple3ds(req: Request, res: Response): Promise<any> {
-  if (!req.files) {
+  if (!req.files || !req.params.skinId) {
     return res.status(400).send({
-      message: "Error: No files found",
+      message: "Error: No files found or No skinId found",
       isSuccessful: false
     })
   }
   const files = req.files as Express.Multer.File[];
   try {
-    await threeDimensionService.uploadMultiple3d(files);
+    await threeDimensionService.uploadMultiple3d(files, +req.params.skinId);
   } catch (e: any) {
     console.log(e.message);
-    res.status(400).send({
+    return res.status(400).send({
       message: e.message,
       isSuccessful: false
     });
   }
 
-  res.status(200).send({
+  return res.status(200).send({
     message: "3d uploaded successfully",
     isSuccessful: true
   });
