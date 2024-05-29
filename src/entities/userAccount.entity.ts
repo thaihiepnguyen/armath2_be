@@ -9,4 +9,5 @@ export interface UserAccountEntity {
     updated_at: Date;
     skin_id: number | null;
     frame_id: number | null;
+    threeDimensionId: number | null;
   }
