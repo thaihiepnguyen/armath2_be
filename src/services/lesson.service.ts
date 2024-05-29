@@ -15,10 +15,9 @@ async function getAllChapter(): Promise<ChapterEntity[] | undefined> {
     .orderBy("chapter_id");
 }
 
-async function getVideoByLessonId(id: number): Promise<string[] | undefined> {
-  return db<string>("lessons")
-    .select('video_url')
-    .where("lesson_id", id);
+async function getByLessonId(id: number): Promise<LessonEntity | undefined> {
+  return db<LessonEntity>("lessons")
+    .where("lesson_id", id).first();
 }
 
 async function getBookByLessonId(id: number): Promise<string[] | undefined> {
@@ -39,7 +38,7 @@ async function getChapterBySemester(semester: number): Promise<string[] | undefi
 export default {
     getLessonByChapter,
     getAllChapter,
-    getVideoByLessonId,
+    getByLessonId,
     getBookByLessonId,
     getChapterBySemester,
 }
