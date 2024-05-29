@@ -3,4 +3,5 @@ export interface UserLoginDataExternalEntity {
     external_uid: string;
     external_token: string;
     email: string;
+    platform: string;
 }
