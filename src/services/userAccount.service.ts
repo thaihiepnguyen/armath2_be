@@ -68,18 +68,24 @@ async function getPersonalByUserId(user_id: number, platform_id: number = 1): Pr
   const sqlSkinsPurchased = `
      SELECT 
           s.skin_id as skinId,
-          s.image_id as imageSkinId
+          s.image_id as imageSkinId,
+          td.id as threeDimensionId
      FROM user_account ua
      LEFT JOIN skin_purchases sp ON ua.user_id = sp.user_id
      LEFT JOIN skin s ON sp.skin_id = s.skin_id
-     WHERE ua.user_id = ?
+     LEFT JOIN skin_3ds ds ON ds.skin_id = s.skin_id
+     LEFT JOIN three_dimensions td ON td.id = ds.three_dimension_id 
+     WHERE ua.user_id = ? AND td.platform_id = ?
      UNION
      SELECT
          s.skin_id as skinId,
-         s.image_id as imageSkinId
+         s.image_id as imageSkinId,
+         td.id as threeDimensionId
      FROM user_account ua
      JOIN skin s ON ua.skin_id = s.skin_id
-     WHERE ua.user_id = ?;
+     LEFT JOIN skin_3ds ds ON ds.skin_id = s.skin_id
+     LEFT JOIN three_dimensions td ON td.id = ds.three_dimension_id 
+     WHERE ua.user_id = ? AND td.platform_id = ?;
   `;
 
   const sqlFramesPurchased = `
@@ -101,7 +107,7 @@ async function getPersonalByUserId(user_id: number, platform_id: number = 1): Pr
 
   const [rawData, skinsPurchased, framesPurchased] = await Promise.all([
     db.raw(sql, [user_id, platform_id, user_id]).then(data => data["rows"]?.[0]),
-    db.raw(sqlSkinsPurchased, [user_id, user_id]).then(data => data["rows"]),
+    db.raw(sqlSkinsPurchased, [user_id, platform_id, user_id, platform_id]).then(data => data["rows"]),
     db.raw(sqlFramesPurchased, [user_id, user_id]).then(data => data["rows"])
   ]);
 
