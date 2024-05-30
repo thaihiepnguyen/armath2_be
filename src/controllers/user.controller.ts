@@ -101,33 +101,21 @@ async function updatePersonal(req: Request, res: Response): Promise<any> {
       });
     }
 
-    const { type, id } = req.body;
-    if (!type || !id) {
+    const { skinId, frameId } = req.body;
+    if (!skinId || !frameId) {
       return res.status(400).json({
         isSuccessful: false,
-        message: `id and type is required`
+        message: `skinId and frameId is required`
       });
     }
 
-    if (type == "skin") {
-      await userAccountService.updateSkin(uid, id);
-      return res.status(200).json({
-        isSuccessful: true,
-        message: "success"
-      });
-    } else if (type == "frame") {
-      await userAccountService.updateFrame(uid, id);
-      return res.status(200).json({
-        isSuccessful: true,
-        message: "success"
-      });
-    } else {
-      return res.status(400).json({
-        isSuccessful: false,
-        message: `Invalid type`
-      });
-    }
+    skinId && await userAccountService.updateSkin(uid, skinId);
+    frameId && await userAccountService.updateFrame(uid, frameId);
 
+    return res.status(400).json({
+      isSuccessful: true,
+      message: 'success'
+    });
   } catch (e: any) {
     return res.status(500).json({
       isSuccessful: false,
