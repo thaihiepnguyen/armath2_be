@@ -112,7 +112,7 @@ async function updatePersonal(req: Request, res: Response): Promise<any> {
     skinId && await userAccountService.updateSkin(uid, skinId);
     frameId && await userAccountService.updateFrame(uid, frameId);
 
-    return res.status(400).json({
+    return res.status(200).json({
       isSuccessful: true,
       message: 'success'
     });
