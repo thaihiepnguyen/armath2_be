@@ -1,5 +1,6 @@
 import {Request, Response} from "express";
 import threeDimensionService from "../services/threeDimension.service.js";
+import numberUtil from "../util/number.util.js";
 
 async function upload3d(req: Request, res: Response): Promise<any> {
   if (!req.file || !req.params.skinId) {
@@ -51,8 +52,15 @@ async function download3d(req: Request, res: Response): Promise<any> {
   const { id } = req.params;
 
   if (!id) {
-    return res.status(404).send({
+    return res.status(400).send({
       message: "id is required",
+      isSuccessful: false
+    })
+  }
+
+  if (!numberUtil.isNumberString(id)) {
+    return res.status(400).send({
+      message: "Error: id must be a number",
       isSuccessful: false
     })
   }

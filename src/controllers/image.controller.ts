@@ -1,7 +1,6 @@
-import {ImageEntity} from "../entities/image.entity.js";
 import imageService from "../services/image.service.js";
-import db from "../util/db.js";
 import {Request, Response} from "express";
+import NumberUtil from "../util/number.util.js";
 
 
 async function uploadImage(req: Request, res: Response): Promise<any> {
@@ -29,10 +28,16 @@ async function uploadImage(req: Request, res: Response): Promise<any> {
 
 async function downloadImage(req: Request, res: Response): Promise<any> {
   const { id } = req.params;
-
   if (!id) {
     return res.status(404).send({
       message: "id is required",
+      isSuccessful: false
+    })
+  }
+
+  if (!NumberUtil.isNumberString(id)) {
+    return res.status(400).send({
+      message: "id must be a number",
       isSuccessful: false
     })
   }
