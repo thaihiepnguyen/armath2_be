@@ -1,6 +1,7 @@
 import {Request, Response} from 'express';
 import lessonService from "../services/lesson.service.js";
 import numberUtil from "../util/number.util.js";
+import { get } from 'https';
 
 async function getLessonByChapter(req: Request, res: Response): Promise<any> {
   try {
@@ -57,27 +58,7 @@ async function getAllChapter(req: Request, res: Response): Promise<any> {
   }
   
 }
-async function getVideoByLessonId(req: Request, res: Response): Promise<any> {
-  try {
-    const { lessonId } = req.body;
-    if (!numberUtil.isNumberString(lessonId) ){
-      return res.status(400).json({
-        message: `LessonId must be a number`
-      });
-    }
-    const video = await lessonService.getVideoByLessonId(+lessonId);
 
-    return res.status(200).json({
-      message: video ? `Video is found` : `Video is not found`,
-      data: video
-    });
-  } catch (error: any) {
-    return res.status(500).json({
-      message: error.message
-    });
-  }
-  
-}
 async function getBookByLessonId(req: Request, res: Response): Promise<any> {
   try {
     const { lessonId } = req.body;
@@ -99,10 +80,35 @@ async function getBookByLessonId(req: Request, res: Response): Promise<any> {
   }
   
 }
+async function getLessonById(req: Request, res: Response): Promise<any> {
+  try {
+    console.log(req.params);
+    const { lessonId } = req.params;
+    console.log(lessonId);
+    const lessonIdNumber= Number(lessonId);
+    if (!numberUtil.isNumberString(lessonId) ){
+      return res.status(400).json({
+        message: `LessonId must be a number`
+      });
+    }
+    const video = await lessonService.getByLessonId(lessonIdNumber);
+
+    return res.status(200).json({
+      message: video ? `Video are found` : `Video is not found`,
+      data: video
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      message: error.message
+    });
+  }
+
+}
 export default {
     getAllChapter,
     getLessonByChapter,
     getBookByLessonId,
-    getVideoByLessonId,
-    getChapterBySemester
+    
+    getChapterBySemester,
+    getLessonById,
 }
