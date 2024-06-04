@@ -102,13 +102,35 @@ async function getLessonById(req: Request, res: Response): Promise<any> {
       message: error.message
     });
   }
-
 }
+
+async function getImagesById(req: Request, res: Response): Promise<any> {
+  try {
+    const { lessonId } = req.params;
+    const lessonIdNumber= Number(lessonId);
+    if (!numberUtil.isNumberString(lessonId) ){
+      return res.status(400).json({
+        message: `LessonId must be a number`
+      });
+    }
+    const imageIds = await lessonService.getImagesById(lessonIdNumber);
+
+    return res.status(200).json({
+      message: imageIds ? `Images are found` : `Images are not found`,
+      data: imageIds
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      message: error.message
+    });
+  }
+}
+
 export default {
     getAllChapter,
     getLessonByChapter,
     getBookByLessonId,
-    
+    getImagesById,
     getChapterBySemester,
     getLessonById,
 }

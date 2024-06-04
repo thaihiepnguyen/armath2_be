@@ -9,4 +9,7 @@ router.post("/get-lessons-by-chapter-id", lessonController.getLessonByChapter);
 router.post("/get-book-by-lesson-id", authMiddleware.authenticate, lessonController.getBookByLessonId);
 router.get("/get-chapter-by-semester/:semester",  authMiddleware.authenticate, lessonController.getChapterBySemester);
 router.get("/:lessonId", authMiddleware.authenticate, lessonController.getLessonById);
+router.get("/images/:lessonId", authMiddleware.authenticate, lessonController.getImagesById);
+
+
 export default router;

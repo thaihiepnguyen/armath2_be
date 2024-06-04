@@ -34,6 +34,16 @@ async function getChapterBySemester(semester: number): Promise<string[] | undefi
     .orderBy("chapter_id");
 }
 
+async function getImagesById(id: number): Promise<number[]> {
+  return db("lesson_images")
+    .select("image_id")
+    .where("lesson_id", id)
+    .then(rawData => {
+      return rawData.map(item => item.image_id);
+    });
+}
+
+
 
 export default {
     getLessonByChapter,
@@ -41,4 +51,5 @@ export default {
     getByLessonId,
     getBookByLessonId,
     getChapterBySemester,
+    getImagesById,
 }
