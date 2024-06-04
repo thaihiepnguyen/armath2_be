@@ -2,6 +2,7 @@ import {Request, Response} from 'express';
 import lessonService from "../services/lesson.service.js";
 import numberUtil from "../util/number.util.js";
 import { get } from 'https';
+import { TBaseDto } from '../app.typing.js';
 
 async function getLessonByChapter(req: Request, res: Response): Promise<any> {
   try {
@@ -110,18 +111,21 @@ async function getImagesById(req: Request, res: Response): Promise<any> {
     const lessonIdNumber= Number(lessonId);
     if (!numberUtil.isNumberString(lessonId) ){
       return res.status(400).json({
-        message: `LessonId must be a number`
+        message: `LessonId must be a number`,
+        isSuccessful: false
       });
     }
     const imageIds = await lessonService.getImagesById(lessonIdNumber);
 
     return res.status(200).json({
       message: imageIds ? `Images are found` : `Images are not found`,
+      isSuccessful: true,
       data: imageIds
     });
   } catch (error: any) {
     return res.status(500).json({
-      message: error.message
+      message: error.message,
+      isSuccessful: false,
     });
   }
 }
