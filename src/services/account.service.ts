@@ -14,7 +14,8 @@ import { UserAccountEntity } from "../entities/userAccount.entity.js";
 import { UserLoginDataExternalEntity } from "../entities/userLoginDataExternal.entity.js";
 import AppConst from "../app.const.js";
 
-async function loginByEmail(email: string, password: string): Promise<TBaseDto<any>> {
+async function loginByEmail(email: string, password: string, rememberMe: boolean): Promise<TBaseDto<any>> {
+  console.log(rememberMe)
   const user: UserLoginDataEntity | undefined = await userLoginDataService.getUserByEmail(email);
   if (!user) {
     return {
@@ -56,7 +57,7 @@ async function loginByEmail(email: string, password: string): Promise<TBaseDto<a
   }
 
   const accessToken = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
-    expiresIn: appConst.EXPIRES_ACCESS_TOKEN_IN
+    expiresIn: !rememberMe ? appConst.EXPIRES_ACCESS_TOKEN_IN : '3d'
   });
 
   const refreshToken = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
