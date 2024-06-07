@@ -3,7 +3,7 @@ import accountService from "../services/account.service.js";
 import cookieUtil from "../util/cookie.util.js";
 
 async function loginByEmail(req: Request, res: Response): Promise<any> {
-  const { email, password } = req.body;
+  const { email, password, rememberMe } = req.body;
   if (!email || !password) {
     return res.status(400).json({
       message: "email and password are required",
@@ -16,7 +16,7 @@ async function loginByEmail(req: Request, res: Response): Promise<any> {
     message,
     data,
     errorCode
-  } = await accountService.loginByEmail(email, password);
+  } = await accountService.loginByEmail(email, password, rememberMe);
 
   if (isSuccessful) {
     cookieUtil.setCookie(res, data);
