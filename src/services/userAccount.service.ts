@@ -93,7 +93,7 @@ async function getPersonalByUserId(user_id: number, platform_id: number = 1): Pr
             f.frame_id as frameId,
             f.image_id as imageFrameId
       FROM user_account ua
-      LEFT JOIN frame_purchases fp ON ua.user_id = fp.user_id
+      JOIN frame_purchases fp ON ua.user_id = fp.user_id
       LEFT JOIN frames f ON fp.frame_id = f.frame_id
       WHERE ua.user_id = ?
       UNION
