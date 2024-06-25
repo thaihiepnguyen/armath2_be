@@ -7,7 +7,9 @@ async function getExerciseById(req: Request, res: Response): Promise<any> {
     const { exerciseId } = req.params;
     const exerciseIdNumber = Number(exerciseId);
     if (!numberUtil.isNumberString(exerciseId) ){
-      throw new Error('exerciseId must be a number');
+      return res.status(400).json({
+        message: `Semester must be a number`
+      });
     }
     const exercise = await exerciseService.getExerciseById(exerciseIdNumber);
 
@@ -21,6 +23,26 @@ async function getExerciseById(req: Request, res: Response): Promise<any> {
     });
   }
 }
+
+
+
+  async function getExerciseByType(req: Request, res: Response): Promise<any> {
+    try {
+      const { type }  = req.body;
+      const exercise = await exerciseService.getExerciseByType(type);
+  
+      return res.status(200).json({
+        message: exercise ? `Exercise ${type} is found` : `Exercise ${type} is not found`,
+        data: exercise
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: `Internal error`
+      });
+    }
+
+}
+
 async function getAllExercise(req: Request, res: Response): Promise<any> {
   try {
 
@@ -84,9 +106,47 @@ async function getExercisesByTestId(req: Request, res: Response): Promise<any> {
     });
   }
 }
+
+/**
+ * Retrieves random exercises by their chapter ID.
+ * @param req - The request object.
+ * @param res - The response object.
+ * @returns A Promise that resolves to the exercise data.
+ */
+async function getExercisesByChapterId(req: Request, res: Response): Promise<any> {
+  try {
+    const { chapterId } = req.params;
+    const chapterIdNumber = Number(chapterId);
+    if (!numberUtil.isNumberString(chapterId) ){
+      throw new Error('chapterId must be a number');
+    }
+    let exercises = await exerciseService.getExerciseByChapterId(chapterIdNumber);
+    
+    if(!exercises || exercises.length === 0){
+      return res.status(404).json({
+        message: `Exercises are not found`,
+        
+      });
+    }
+
+    exercises = exercises.filter(() => Math.random() < 0.5).slice(0, 20);
+
+    return res.status(200).json({
+      message: exercises ? `Exercises with chapter id:${chapterId} are found` : `Exercises with chapter id:${chapterId} are not found`,
+      data: exercises,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: `Internal error`
+    });
+  }
+}
 export default {
     getExerciseById,
     getAllExercise,
     getExercisesByLessonId,
     getExercisesByTestId,
+    getExerciseByType,
+    getExercisesByChapterId
 }

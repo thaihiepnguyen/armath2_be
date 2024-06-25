@@ -3,7 +3,7 @@ import accountService from "../services/account.service.js";
 import cookieUtil from "../util/cookie.util.js";
 
 async function loginByEmail(req: Request, res: Response): Promise<any> {
-  const { email, password } = req.body;
+  const { email, password, rememberMe } = req.body;
   if (!email || !password) {
     return res.status(400).json({
       message: "email and password are required",
@@ -16,7 +16,7 @@ async function loginByEmail(req: Request, res: Response): Promise<any> {
     message,
     data,
     errorCode
-  } = await accountService.loginByEmail(email, password);
+  } = await accountService.loginByEmail(email, password, rememberMe);
 
   if (isSuccessful) {
     cookieUtil.setCookie(res, data);
@@ -54,6 +54,27 @@ async function registerByEmail(req: Request, res: Response): Promise<any> {
   });
 }
 
+async function registerByPhone(req: Request, res: Response): Promise<any> {
+  const { phone, password } = req.body;
+  if (!phone || !password) {
+    return res.status(400).json({
+      message: "phone and password are required",
+      isSuccessful: false
+    });
+  }
+
+  const {
+    message,
+    errorCode,
+    isSuccessful
+  } = await accountService.registerByPhone(phone, password);
+
+  return res.status(errorCode).json({
+    message,
+    isSuccessful
+  });
+}
+
 async function verifyEmail(req: Request, res: Response): Promise<any> {
 const { token } = req.query;
   if (!token) {
@@ -72,11 +93,32 @@ const { token } = req.query;
   });
 }
 
+async function verifyPhoneNumber(req: Request, res: Response): Promise<any> {
+  const { phone } = req.body;
+  if (!phone) {
+    return res.status(400).json({
+      message: "phone number not found"
+    });
+  }
+
+  const {
+    message,
+    errorCode,
+    isSuccessful,
+  } = await accountService.verifyPhoneNumber(phone);
+
+  return res.status(errorCode).json({
+    message,
+    isSuccessful
+  });
+  }
+
 function refreshToken(req: Request, res: Response): any {
   const { rft } = req.cookies;
   if (!rft) {
     return res.status(400).json({
-      message: "refresh token is required"
+      message: "refresh token is required",
+      isSuccessful: false
     });
   }
 
@@ -87,11 +129,19 @@ function refreshToken(req: Request, res: Response): any {
     data,
   } = accountService.refreshToken(rft);
 
+  if (!data) {
+    return res.status(errorCode).json({
+      message,
+      isSuccessful: false
+    });
+  }
+
   if (isSuccessful && errorCode === 200) {
-    cookieUtil.setCookie(res, data!!);
+    cookieUtil.setCookie(res, data);
   }
   return res.status(errorCode).json({
-    message
+    message,
+    isSuccessful: true,
   });
 }
 
@@ -120,11 +170,45 @@ function logout(req: Request, res: Response): any {
   });
 }
 
+async function loginExternalParty(req: Request, res: Response): Promise<any> {
+  const { email, uid, token, platform } = req.body;
+  if (!email || !uid || !token) {
+    return res.status(400).json({
+      message: "required information is empty",
+      isSuccessful: false
+    });
+  }
+
+  const {
+    isSuccessful,
+    message,
+    data,
+    errorCode
+  } = await accountService.loginExternalParty(email, uid, token, platform);
+
+  if (isSuccessful) {
+    cookieUtil.setCookie(res, data);
+    return res.status(200).json({
+      message,
+      isSuccessful: true,
+      data: data.uid
+    });
+  } else {
+    return res.status(errorCode).json({
+      message,
+      isSuccessful: false
+    });
+  }
+}
+
 export default {
   loginByEmail,
   registerByEmail,
+  registerByPhone,
   verifyEmail,
+  verifyPhoneNumber,
   refreshToken,
   resendVerificationEmail,
-  logout
+  logout,
+  loginExternalParty,
 }
