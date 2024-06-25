@@ -15,7 +15,19 @@ interface TGame {
 }
 
 async function getGameByLessonId(id: number): Promise<TGame | undefined> {
-  const gameConfig = await db<GameConfigEntity>("game_configs").where("lesson_id", id).first();
+  const gameConfig = await db<GameConfigEntity>("game_configs")
+    .select(
+      "game_configs.id",
+      "game_configs.game_type_id",
+      "game_configs.lesson_id",
+      "game_configs.time",
+      "game_configs.question_count",
+      "game_type.name as game_type_name",
+      "game_type.name_vi as game_type_name_vi"
+    )
+    .join("game_type", "game_configs.game_type_id", "game_type.id")
+    .where("lesson_id", id)
+    .first();
   if (!gameConfig) {
     return undefined;
   }
