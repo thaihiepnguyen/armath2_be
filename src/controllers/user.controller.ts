@@ -94,6 +94,8 @@ async function updatePersonal(req: Request, res: Response): Promise<any> {
   try {
     const { metadata } = req.body;
     const uid = metadata?.uid;
+    console.log(uid);
+    
     if (!uid) {
       return res.status(400).json({
         isSuccessful: false,
@@ -102,7 +104,7 @@ async function updatePersonal(req: Request, res: Response): Promise<any> {
     }
 
     const { skinId, frameId } = req.body;
-    if (!skinId || !frameId) {
+    if (!skinId && !frameId) {
       return res.status(400).json({
         isSuccessful: false,
         message: `skinId and frameId is required`
