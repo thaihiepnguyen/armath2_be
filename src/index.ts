@@ -16,6 +16,7 @@ import imageRoute from "./routes/image.route.js";
 import threeDimensionRoute from "./routes/threeDimension.route.js";
 import bookRoute from "./routes/book.route.js";
 import gameRoute from "./routes/game.route.js";
+import noteRoute from "./routes/note.route.js"
 
 const app: Express = express();
 
@@ -42,6 +43,7 @@ app.use("/images", imageRoute);
 app.use("/3ds", threeDimensionRoute);
 app.use("/book", bookRoute);
 app.use("/game", gameRoute);
+app.use("/notes", noteRoute);
 app.get("/health", (req: Request, res: Response) => {
   res.sendStatus(200)
 });
