@@ -8,8 +8,10 @@ const db = knex({
     port: parseInt(process.env.DB_PORT as string) || 5432,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    ssl:true,
+    ssl: true,
   },
+  pool: { min: 0, max: 15 },
+  acquireConnectionTimeout: 10000, // 10 seconds
 }).on('connection-error', function(error) {
   console.log('Error connecting to database', error);
 });
