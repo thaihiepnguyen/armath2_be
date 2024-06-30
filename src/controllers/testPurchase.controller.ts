@@ -6,7 +6,9 @@ import { get } from 'http';
 
 async function getByUserId(req: Request, res: Response): Promise<any> {
   try {
-    const { userId } = req.params;
+    
+    const { metadata } = req.body;
+    const userId = metadata?.uid;
     const userIdNumber = Number(userId);
     if (!numberUtil.isNumberString(userId) ){
       return res.status(400).json({
