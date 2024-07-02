@@ -1,13 +1,13 @@
-import {Request, Response} from 'express';
+import { Request, Response } from 'express';
 import questionResultService from "../services/questionResult.service.js";
-import  numberUtil  from '../util/number.util.js';
+import numberUtil from '../util/number.util.js';
 import { QuestionResultEntity } from '../entities/questionResult.entity.js';
 
 async function getQuestionResultByTestResultId(req: Request, res: Response): Promise<any> {
   try {
     const { testResultId } = req.params;
     const testResultIdNumber = Number(testResultId);
-    if (!numberUtil.isNumberString(testResultId) ){
+    if (!numberUtil.isNumberString(testResultId)) {
       return res.status(400).json({
         message: `Semester must be a number`
       });
@@ -27,21 +27,22 @@ async function getQuestionResultByTestResultId(req: Request, res: Response): Pro
 
 
 
-  async function addQuestionResult(req: Request, res: Response): Promise<any> {
-    try {
-      var temp =  req.body;
-      delete temp.question_result_id;
-      const question_result = await questionResultService.addQuestionResult(temp);
-  
-      return res.status(200).json({
-        message: question_result ? `Add success` : `Add failed`,
-        data: question_result
-      });
-    } catch (error) {
-      return res.status(500).json({
-        message: `Internal error`
-      });
-    }
+async function addQuestionResult(req: Request, res: Response): Promise<any> {
+  try {
+    var temp = req.body;
+    delete temp.question_result_id;
+    const question_result = await questionResultService.addQuestionResult(temp);
+
+    return res.status(200).json({
+      message: question_result ? `Add success` : `Add failed`,
+      data: question_result
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: `Internal error`
+    });
+  }
 
 }
 
@@ -49,7 +50,7 @@ async function getById(req: Request, res: Response): Promise<any> {
   try {
     const { id } = req.params;
     const idNumber = Number(id);
-    if (!numberUtil.isNumberString(id) ){
+    if (!numberUtil.isNumberString(id)) {
       return res.status(400).json({
         message: `Semester must be a number`
       });
@@ -68,9 +69,9 @@ async function getById(req: Request, res: Response): Promise<any> {
 }
 
 export default {
-    getById,
-    getQuestionResultByTestResultId,
-    addQuestionResult,
-    
+  getById,
+  getQuestionResultByTestResultId,
+  addQuestionResult,
+
 
 }
