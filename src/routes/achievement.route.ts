@@ -6,5 +6,9 @@ const router: Router = express.Router();
 
 router.get("/get-by-user-id", authMiddleware.authenticate, achievementController.getAchievementsByUserId);
 router.post("/get-reward", authMiddleware.authenticate, achievementController.getReward);
+router.post("/update-progress", authMiddleware.authenticate, achievementController.updateProgressByUserId);
+router.post("/chapter", authMiddleware.authenticate, achievementController.checkAndGetChapterAchievement);
+router.post("/semester", authMiddleware.authenticate, achievementController.checkAndGetSemesterAchievement);
+router.post("/new-achievement", authMiddleware.authenticate, achievementController.checkAndGetNewAchievement);
 
 export default router;
